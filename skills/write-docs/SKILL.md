@@ -3,7 +3,7 @@ name: write-docs
 description: Skill ini menulis dan merawat dokumentasi yang selalu cocok dengan kode - README, ringkasan proyek, dokumentasi API (OpenAPI), changelog, panduan untuk pengguna, dan runbook - dengan pembagian jenis dokumen Diátaxis, bahasa sederhana, contoh yang benar-benar dijalankan, dan diperbarui di commit yang sama dengan kodenya. Pakai saat membuat atau mengubah README, menambah/mengubah endpoint API, merilis perubahan, menulis panduan pemakaian, atau saat dokumentasi sudah tidak sesuai kode.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -55,7 +55,8 @@ Informasi ditulis **di satu tempat**; tempat lain menautkan, tidak menyalin.
 - Dokumen usang lebih berbahaya daripada tidak ada: perbarui atau hapus, jangan dibiarkan. Saat audit atau
   saat fitur/halaman dihapus, periksa **semua** file di `docs/` (bukan hanya yang namanya cocok): dokumen yang
   masih menyebut fitur, halaman, atau layanan yang sudah tidak ada diperbarui, atau diberi tanda **ARSIP** di
-  baris pertama dan dipindah ke `docs/archive/`. Menghapus dokumen butuh izin user.
+  baris pertama dan dipindah ke `docs/archive/`. Menghapus dokumen butuh izin user. Saat audit
+  (`start-project` mode B) dokumen usang hanya dicatat; pengarsipan dikerjakan di tugas berikutnya.
 - Tanggal ditulis lengkap (2026-10-29), bukan "kemarin" atau "minggu depan".
 - Tidak ada rahasia: pakai contoh (`sk-…`, `<TOKEN>`), dan env cukup disebut namanya.
 

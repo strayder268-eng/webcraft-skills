@@ -3,7 +3,7 @@ name: build-feature
 description: Skill ini mengatur alur menambah atau mengubah fitur dari awal sampai selesai - rencana (spek fitur), catatan keputusan (ADR), urutan pengerjaan database ke API ke UI, test, review diri, cek nyata, commit, dan laporan. Pakai saat user minta fitur baru, halaman baru, perubahan alur, atau perubahan yang menyentuh lebih dari satu bagian web, juga saat perlu mencatat keputusan penting seperti menambah alat atau layanan baru.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -49,7 +49,8 @@ Ukur dulu besarnya:
 | Besar | lebih dari satu bagian, **atau** menyentuh data/uang/login/data pribadi/file/pihak luar | file `docs/features/<fitur>.md` dari `assets/feature-spec.md` |
 
 - Fitur besar yang menyentuh login, uang, data pribadi, file, atau pihak luar: jalankan `secure-feature`
-  sebelum rencana disetujui.
+  sebelum rencana disetujui. Di tahap rencana, threat model dilakukan pada **desain** (alur, data, batas
+  kepercayaan, keputusan pencegahan + test yang wajib); pemeriksaan kode dilakukan lagi setelah coding.
 - Tunjukkan rencana ke user dalam bahasa sederhana. **Jangan mulai coding sebelum disetujui.**
 - Daftarkan fitur di `docs/features/README.md` (nama, satu baris kegunaan, status).
 
@@ -66,6 +67,7 @@ Aturan ADR [Nygard]:
 - Nomor urut, tidak pernah dipakai ulang.
 - Isi: konteks (fakta), keputusan ("Kita akan …"), status, konsekuensi (baik dan buruk).
 - Pendek, 1-2 halaman.
+- Status `diusulkan` selama rencana belum disetujui; `diterima` setelah user setuju.
 - **Tidak diedit setelah diterima.** Kalau keputusan berubah, buat ADR baru; ADR lama diberi status
   "digantikan oleh NNNN".
 

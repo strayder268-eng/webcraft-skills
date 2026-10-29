@@ -3,7 +3,7 @@ name: build-backend
 description: Skill ini menulis logika server yang rapi dan tahan gangguan - pembagian lapisan, penanganan error, log terstruktur, batas waktu dan retry ke layanan luar, cache, pekerjaan latar/antrean, rate limit, penyimpanan kunci idempotency, health check, mati dengan rapi, dan mengukur serta memperbaiki performa. Pakai saat menulis atau mengubah logika backend, memanggil layanan luar, menambah cache atau Redis, membuat pekerjaan terjadwal/latar, menambah rate limit, menambah log, atau saat endpoint lambat/boros query.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -98,6 +98,9 @@ Pakai kalau pekerjaan lama (kirim email, proses file, panggil API lambat) tidak 
 - IP diambil dari header proxy **hanya** kalau request datang dari proxy yang dipercaya.
 - Tentukan dan catat: kalau penyimpanan rate limit mati, endpoint sensitif (login, bayar) **menolak**
   (gagal tertutup); endpoint biasa boleh tetap jalan.
+- Kelonggaran untuk pengembangan (mis. gagal terbuka di laptop) hanya lewat **env yang jelas namanya**, mati
+  secara bawaan, dan ditolak saat start di produksi. Komentar "sementara untuk dev" tanpa saklar seperti itu
+  adalah temuan.
 
 ### 8. Kunci idempotency
 

@@ -3,7 +3,7 @@ name: start-project
 description: Skill ini memulai proyek web dari nol (wawancara kebutuhan, memilih stack, membuat struktur dan file proyek, menyambungkan frontend-API-database pertama kali) atau memasang webcraft-skills ke proyek yang sudah ada (membaca repo, menulis file proyek, mengaudit ketidaksesuaian). Pakai saat user bilang "bikin web/aplikasi baru", "mulai proyek", atau saat proyek belum punya docs/PROJECT.md.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -103,7 +103,8 @@ diketahui" dan ditanyakan ke user.
   berjalan; dokumen yang salah masuk audit sebagai temuan `write-docs`.
 - **Keputusan lama** yang belum berbentuk ADR (spek, catatan desain): rujuk dokumen itu di PROJECT.md. ADR
   baru hanya dibuat saat keputusan itu diubah (`build-feature` langkah 3); tidak perlu menulis ulang ADR untuk
-  keputusan masa lalu.
+  keputusan masa lalu. Setiap kali skill lain meminta "catat di ADR", dokumen keputusan lama yang sudah ada
+  ini juga memenuhi.
 - **Dikelola di luar repo**: konfigurasi yang ada di platform (hosting, CDN, DNS, penyedia email) dicatat di
   bagian itu: apa, di mana, siapa yang punya akses. Audit menandainya "cek manual oleh user", bukan menebak.
 
@@ -122,23 +123,44 @@ PROJECT.md dengan salah satu status:
 |---|---|---|
 | **konvensi** | bentuknya beda, tapi **aturan wajib terpenuhi**. Dipakai terus; kode baru mengikuti bentuk ini. Bukan temuan audit. | `web/app` tanpa `src/`; kamus TypeScript bertipe; `node --test` |
 | **utang** | bentuknya **melanggar** aturan wajib. Masuk audit. Kode baru wajib ikut aturan; kode lama dirapikan saat disentuh atau lewat tugas sendiri. | `<button>` mentah di 35 halaman lama; satu `schema.sql` yang berisi `DROP` |
-| **perlu keputusan** | memperbaikinya mengubah alat atau kontrak (butuh ADR + persetujuan user). | pindah ke alat migrasi bernomor; ganti format error API |
+| **perlu keputusan** | melanggar aturan wajib, dan memperbaikinya mengubah alat, kontrak, atau keputusan yang sudah tercatat (butuh ADR + persetujuan user). Masuk audit. | pindah ke alat migrasi bernomor; ganti format error API |
+
+Satu topik satu baris, cukup sedetail yang dibutuhkan agent berikutnya untuk tahu bentuk mana yang dipakai
+(biasanya 10-30 baris). Baris *utang* dan *perlu keputusan* menyebut ID temuannya di audit.
 
 ### 5. Audit
 
-Bandingkan proyek dengan skill yang relevan dan tulis `docs/audit-webcraft.md`:
+Tulis `docs/audit-webcraft.md` dari `assets/audit-webcraft.md`. Supaya dua agent yang mengaudit proyek yang
+sama mendapat hasil yang sama, audit dikerjakan **lengkap, bukan sampel**:
 
-| Skill | Aturan (nomor) | Bukti (file:baris) | Risiko | Prioritas |
-|---|---|---|---|---|
+1. **Per skill, per aturan.** Ambil skill yang relevan dengan proyek, urut seperti indeks README. Untuk setiap
+   aturan bernomor di "Aturan wajib", cari buktinya di repo, lalu beri satu status di *Daftar periksa*:
+   sesuai / temuan / konvensi / perlu diukur / tidak relevan. Aturan tanpa status = audit belum selesai.
+2. **Cek kebenaran sebelum menulis temuan.** Baca sumber sesuai urutan di `start-here` aturan 10. Kalau
+   perilaku yang tampak salah ternyata **sengaja diputuskan** di dokumen keputusan:
+   - keputusan itu memenuhi aturan wajib → bukan temuan;
+   - keputusan itu melanggar aturan wajib → tetap temuan, status *perlu keputusan*, sebut dokumennya;
+   - dokumen lain (README) menjanjikan hal yang bertentangan dengan keputusan → temuan `write-docs`.
+3. **Prioritas hanya empat, berdasarkan akibatnya** kalau dibiarkan:
 
-- Urutan prioritas: (1) keamanan dan rahasia, (2) data dan uang, (3) bug yang dirasakan pengguna, (4) struktur
-  dan kerapian.
-- Yang berstatus *konvensi* bukan temuan.
-- **Semua** file di `docs/` diperiksa: dokumen yang menyebut fitur, halaman, atau layanan yang sudah tidak ada
-  adalah temuan `write-docs` (dokumen usang lebih berbahaya daripada tidak ada).
-- Hal yang hanya bisa dipastikan dengan menjalankan aplikasi (waktu respons, jumlah query per request, kontras
-  warna, hasil `npm audit`/`govulncheck`) ditulis **"perlu diukur"** beserta cara mengukurnya, bukan ditebak.
-- Tambahkan bagian *Yang sudah sesuai*, supaya laporan tidak hanya daftar kesalahan.
+   | Prioritas | Dipakai kalau akibatnya… | Contoh |
+   |---|---|---|
+   | **P1** keamanan dan rahasia | orang lain bisa masuk, membaca, atau mengubah yang bukan haknya; rahasia bisa bocor; pertahanan hilang saat ada gangguan | rate limit gagal terbuka di login, image berjalan sebagai root, CI tanpa pemindai |
+   | **P2** data dan uang | data bisa hilang/rusak, uang bisa salah hitung, jejak uang hilang | ledger ikut terhapus, migrasi berisi `DROP`, audit uang dihapus 14 hari |
+   | **P3** bug yang dirasakan pengguna | pengguna atau developer mendapat hasil salah, lambat, atau petunjuk salah | README salah port, teks tidak diterjemahkan, dokumen usang |
+   | **P4** struktur dan kerapian | kode sulit dirawat, tapi belum salah | file 1.800 baris, `utils.ts`, nama modul lama |
+
+   Satu temuan yang masuk dua prioritas memakai yang **lebih tinggi**. Tidak ada skala lain (tinggi/sedang/
+   rendah). Setiap temuan diberi ID tetap (`P1-01`).
+4. **Yang masuk audit:** status *utang* dan *perlu keputusan*. Status *konvensi* tidak.
+5. **Semua** file teks di `docs/` dan dokumen lain di repo (`*.md` di subfolder) diperiksa: dokumen yang
+   menyebut fitur, halaman, atau layanan yang sudah tidak ada adalah temuan `write-docs`. Gambar dan file biner
+   cukup dicatat di *Cakupan docs/*. Di mode B dokumen usang **hanya dicatat**, tidak diarsipkan atau diubah.
+6. Hal yang hanya bisa dipastikan dengan menjalankan aplikasi (waktu respons, jumlah query per request, kontras
+   warna, header di domain, hasil `npm audit`/`govulncheck`) diberi status **perlu diukur** beserta cara
+   mengukurnya, bukan ditebak. Audit baca-saja dianggap **lengkap** kalau semua aturan sudah punya status,
+   termasuk "perlu diukur".
+7. Tambahkan bagian *Yang sudah sesuai*, supaya laporan tidak hanya daftar kesalahan.
 
 ### 6. Laporan
 
@@ -172,6 +194,7 @@ Mode B:
 
 - `assets/PROJECT.md`: kerangka ringkasan proyek.
 - `assets/AGENTS.md`: kerangka aturan proyek untuk agent.
+- `assets/audit-webcraft.md`: kerangka laporan audit mode B (temuan ber-ID, perlu diukur, daftar periksa).
 
 ## Sumber
 

@@ -3,7 +3,7 @@ name: design-api
 description: Skill ini merancang dan menjaga kontrak API HTTP/JSON antara frontend dan backend - URL, method, status code, format error seragam (RFC 9457), validasi input, izin per endpoint, bentuk data uang/waktu/ID, pagination, idempotency, rate limit, kompatibilitas versi, serta SSE/WebSocket. Pakai saat menambah atau mengubah endpoint, mengubah bentuk request/response, memanggil API dari frontend, atau menyeragamkan pesan error.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -46,7 +46,9 @@ request, response sukses, kemungkinan error.
 
 **Kontrak pihak lain.** Kalau API sengaja meniru kontrak layanan lain supaya SDK-nya bisa dipakai (mis.
 kompatibel OpenAI, S3), bentuk URL, error, dan data **mengikuti kontrak itu**, bukan aturan 2, 5, 8, dan 9 di
-skill ini. Catat di ADR kontrak mana yang diikuti. Aturan keamanan (6, 7, 10, 11) tetap berlaku.
+skill ini, **termasuk status code** (aturan 4) bila kontrak itu menentukannya. Catat kontrak mana yang diikuti
+di ADR atau dokumen keputusan yang sudah ada. Field response tambahan tetap aman (aturan 12) selama SDK pihak
+itu mengabaikan field yang tidak dikenalnya. Aturan keamanan (6, 7, 10, 11) tetap berlaku.
 
 ### 3. Method [RFC 9110]
 

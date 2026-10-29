@@ -3,7 +3,7 @@ name: build-admin-panel
 description: Skill ini membangun panel admin yang aman dan bisa diaudit - area terpisah, peran dengan hak minimum, 2FA wajib, konfirmasi ulang untuk aksi sensitif, audit log yang tidak bisa diubah, aksi lewat aturan bisnis yang sama dengan user, persetujuan dua orang untuk aksi berisiko tinggi, dan perlindungan data pribadi. Pakai saat membuat atau mengubah halaman/endpoint admin, menambah peran admin, aksi admin atas uang/akun/pengaturan, atau melihat dan mengekspor data user.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -93,6 +93,11 @@ Setiap aksi tulis admin mencatat:
 - **Wajib** disimpan minimal 1 tahun untuk aksi uang dan peran (sengketa pembayaran dan investigasi sering
   datang berbulan-bulan kemudian). Penghapusan otomatis yang lebih cepat dari itu adalah pelanggaran berat
   (prioritas data dan uang), bukan kerapian. Aksi lain boleh lebih pendek, ditulis di PROJECT.md.
+  Contoh bentuk: kolom `category` (`money`, `role`, `config`, …) dan job pembersih yang hanya menghapus kategori
+  yang boleh pendek; atau dua tabel terpisah.
+- User database aplikasi hanya punya `INSERT` dan `SELECT` pada tabel audit. Contoh bentuk:
+  `REVOKE UPDATE, DELETE, TRUNCATE ON audit_log FROM app_user;` (`change-database` aturan 10). Pembersihan
+  berkala dijalankan role terpisah.
 - Terlihat oleh `superadmin`, tidak bisa disunting dari panel.
 - Ditulis di transaksi yang sama dengan aksinya: aksi berhasil tanpa audit tidak boleh terjadi.
 

@@ -3,7 +3,7 @@ name: structure-project
 description: Skill ini menentukan letak setiap file dan folder, batas antar modul, serta cara menyimpan config dan rahasia, supaya proyek tidak semrawut saat fitur bertambah. Pakai saat membuat struktur proyek baru, menambah file/komponen/modul dan bingung menaruhnya di mana, merapikan folder yang berantakan, memecah file yang terlalu besar, atau menambah environment variable dan rahasia.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -37,6 +37,10 @@ bertanya, dan menambah fitur tidak membuat folder makin berantakan.
 Semua bagian satu fitur (komponen, logika, pemanggil API, tipe) tinggal berdekatan di satu folder fitur.
 Struktur per jenis (`components/` raksasa, `hooks/` raksasa, `services/` raksasa) membuat satu fitur tersebar
 ke banyak folder dan susah dihapus atau diubah. [Next.js: Split project files by feature or route]
+
+Proyek lama yang tersusun per lapisan (mis. Go `internal/handler/`, `internal/store/` berisi semua fitur)
+mencatatnya sebagai *utang* di *Konvensi*. Fitur baru tetap mengikuti susunan yang ada (`start-here`
+aturan 11) sampai pemindahan diputuskan.
 
 ### 2. Tiga tingkat penempatan
 
@@ -73,7 +77,8 @@ di sana. [Go: cmd/ hanya entry point; keputusan webcraft untuk halaman]
 ### 5. Ukuran file
 
 Patokan: file di atas ±300 baris, atau komponen/fungsi yang mengerjakan lebih dari satu hal, dipecah.
-Ini patokan, bukan hukum; yang penting satu file satu tanggung jawab. [keputusan webcraft]
+Ini patokan, bukan hukum; yang penting satu file satu tanggung jawab. File yang jauh di atas patokan
+(mis. >1.000 baris) dicatat sebagai *utang* P4 dan dipecah saat disentuh. [keputusan webcraft]
 
 ### 6. Nama
 

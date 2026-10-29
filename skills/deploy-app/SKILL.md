@@ -3,7 +3,7 @@ name: deploy-app
 description: Skill ini menjalankan aplikasi di server dengan aman dan bisa diulang - persiapan server (SSH, firewall, update), image Docker yang dibuat CI, Docker Compose produksi, HTTPS otomatis lewat reverse proxy, domain/DNS, CI/CD (test, build, push image), urutan deploy dengan migrasi dan health check, rollback, dan rahasia. Pakai saat menyiapkan server baru, menulis Dockerfile/compose, mengatur domain atau HTTPS, membuat atau mengubah workflow CI/CD, melakukan deploy, atau rollback.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -33,7 +33,9 @@ Server baru, Dockerfile/compose, domain/HTTPS, CI/CD, deploy, rollback.
 - Image dibuat **oleh CI** dari commit tertentu, diberi tag commit (`sha-1a2b3c4`), lalu disimpan di registry.
 - Server tidak membangun kode dan tidak menyimpan kode sumber; server hanya menarik image.
 - Image yang sama dipakai di staging dan produksi; yang berbeda hanya config (env).
-- Tag image tidak pernah ditimpa isinya; versi lama tetap ada untuk rollback.
+- Tag image tidak pernah ditimpa isinya; versi lama tetap ada untuk rollback. Tag bergerak seperti `latest`
+  boleh ada di registry, tapi **tidak dipakai** di compose/config produksi; produksi selalu menyebut tag
+  commit.
 
 ### 2. Server dasar
 

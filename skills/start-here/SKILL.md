@@ -3,7 +3,7 @@ name: start-here
 description: Skill ini adalah pintu masuk webcraft-skills. Isinya peta bagian web (frontend, API, backend, database, infra), letak file proyek, aturan kerja umum, dan cara memilih skill yang tepat. Pakai saat permintaan user masih umum atau berbahasa awam ("bikin web", "tambah login", "webnya error", "mau deploy"), saat belum jelas skill mana yang cocok, atau saat mulai bekerja di proyek yang memakai webcraft-skills.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -99,11 +99,21 @@ Satu permintaan bisa menyentuh beberapa skill. Pakai `build-feature` sebagai pen
 9. **Wajib vs contoh.** "Aturan wajib" dan "Larangan" di setiap skill berlaku di semua proyek. Baris
    "Contoh bentuk:" dan isi `references/` boleh diganti bentuk lain yang tercatat di bagian *Konvensi*
    `docs/PROJECT.md`. Bentuk proyek yang berbeda dari contoh **bukan** pelanggaran selama aturannya terpenuhi.
-10. **Kalau sumber bertentangan** (README vs config, dua dokumen berbeda): yang benar adalah kode/config yang
-    benar-benar berjalan. Dokumen yang salah dicatat sebagai temuan `write-docs`. Kalau dari kode pun tidak
-    jelas, tanya user.
+10. **Kalau sumber bertentangan**, percayai dengan urutan ini:
+    1. kode yang dipakai (bukan kode mati);
+    2. config produksi di repo (compose produksi, config reverse proxy, workflow CI/deploy);
+    3. dokumen keputusan (ADR, spek yang mencatat keputusan) — menjelaskan **maksud**, bukan menggantikan kode;
+    4. dokumen deploy/operasional terbaru;
+    5. README dan dokumen lain.
+
+    Sumber yang kalah dicatat sebagai temuan `write-docs`. Kalau kode dan keputusan berbeda, itu temuan
+    (kode salah atau keputusan usang); tanyakan ke user mana yang dimaksud.
 11. **Kode baru ikut skill, kode lama tidak dibongkar diam-diam.** Bagian proyek yang tercatat sebagai *utang*
     dirapikan saat bagian itu disentuh atau lewat tugas tersendiri, bukan "sekalian" di tugas lain.
+    Pengecualian: **letak folder**. Kode baru mengikuti struktur yang ada sampai pemindahan diputuskan, supaya
+    proyek tidak punya dua pola sekaligus.
+12. **Tanya atau tulis "belum diketahui"?** Saat bekerja bersama user: tanya. Saat audit atau tugas tanpa user
+    (mode B): tulis "belum diketahui" dan kumpulkan pertanyaannya di laporan akhir.
 
 ## Langkah
 

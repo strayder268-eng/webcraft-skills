@@ -3,7 +3,7 @@ name: implement-auth
 description: Skill ini membuat fitur akun yang aman - daftar, login (email+sandi, Google, Telegram, atau penyedia OpenID Connect lain), sesi dan cookie, logout, reset sandi, verifikasi email, 2FA/TOTP, konfirmasi ulang untuk aksi sensitif, peran dan izin, kunci API, JWT, serta pencegahan CSRF dan penebakan akun. Pakai saat menambah atau mengubah login, pendaftaran, sesi, lupa sandi, 2FA, peran user/admin, halaman yang wajib login, atau menghubungkan akun ke Google/Telegram, menerbitkan kunci API, atau memakai JWT.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -75,6 +75,9 @@ pengiriman email/OTP (`send-notifications`).
 
 - Untuk web, pakai **sesi di server**: ID acak ≥128 bit, disimpan dalam bentuk hash di database/Redis,
   dikirim lewat cookie. Token tidak disimpan di `localStorage`.
+- JWT di cookie yang **setiap request dicek ke daftar sesi di server** (bisa dicabut, ada batas idle dan
+  total) dihitung sebagai sesi di server. JWT tanpa pengecekan itu tidak, karena tidak bisa dicabut sebelum
+  kedaluwarsa (aturan 13).
 - Cookie: `HttpOnly`, `Secure`, `SameSite=Lax` (`Strict` untuk area admin), `Path=/`, nama berawalan
   `__Host-`, tanpa atribut `Domain`.
 - Kalau login memang harus berlaku di beberapa subdomain (mis. `app.` dan `api.`), cookie butuh `Domain` dan

@@ -3,7 +3,7 @@ name: operate-app
 description: Skill ini menjaga aplikasi yang sudah berjalan - backup terenkripsi yang rutin diuji pulihkan, pemantauan uptime dan sumber daya, log dan peringatan yang berguna, penanganan insiden (termasuk kebocoran data), postmortem, runbook, serta perawatan rutin (update, rotasi rahasia, akses). Pakai saat menyiapkan atau memeriksa backup, memulihkan data, memasang pemantauan atau alert, server down atau lambat, disk penuh, sertifikat bermasalah, dugaan peretasan, atau menulis runbook.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.3"
   language: id
   status: draf
 ---
@@ -48,7 +48,9 @@ Backup dan pemulihan, pemantauan dan alert, gangguan/insiden, runbook, perawatan
 - **Terenkripsi** sebelum keluar server: server hanya memegang **kunci publik**, kunci privat disimpan offline
   oleh admin.
 - Disimpan di **luar server** (penyimpanan objek di penyedia lain), plus salinan lokal singkat.
-- Masa simpan jelas, mis. harian 14 hari, mingguan 8 minggu, bulanan 12 bulan.
+- Masa simpan tertulis di `docs/PROJECT.md` dan minimal mencakup RPO serta satu salinan lebih tua dari
+  sebulan (kerusakan sering baru ketahuan berminggu-minggu kemudian).
+  Contoh bentuk: harian 14 hari, mingguan 8 minggu, bulanan 12 bulan.
 - Backup yang gagal atau tidak muncul memicu alert.
 - **Uji pulihkan minimal sebulan sekali** ke database sementara, lalu cek isinya. Backup yang belum pernah
   dipulihkan belum terbukti backup. Catat tanggal dan hasil uji.
@@ -56,7 +58,13 @@ Backup dan pemulihan, pemantauan dan alert, gangguan/insiden, runbook, perawatan
 
 ### 2. Pemantauan
 
-Dari **luar** server (layanan uptime terpisah), setiap 1-5 menit:
+Dari **luar** server, setiap 1-5 menit. Pemantau yang berjalan di server yang sama boleh ada untuk detail,
+tapi tidak memenuhi aturan ini: kalau server mati, ia ikut mati dan tidak memberi tahu siapa pun.
+
+Contoh bentuk: layanan uptime gratis/berbayar di luar server, atau pemantau di server/mesin lain yang
+mengirim alert ke kanal yang dibaca.
+
+Yang dipantau:
 
 - halaman utama, endpoint `/readyz` API, halaman login;
 - masa berlaku sertifikat HTTPS (alert ≥ 14 hari sebelum habis).
