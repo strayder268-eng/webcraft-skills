@@ -10,6 +10,11 @@ Sebelum mengerjakan tugas apa pun, ikuti skill `start-here`.
 - Daftar fitur: `docs/features/README.md`
 - Keputusan: `docs/decisions/`
 
+## Alat bantu
+
+- Indeks kode (mis. CodeGraph): pakai dulu sebelum `grep` untuk mencari kode dan pemanggilnya. Daftar alat di
+  `docs/PROJECT.md` bagian *Alat bantu agent*.
+
 ## Perintah
 
 ```sh

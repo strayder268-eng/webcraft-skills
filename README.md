@@ -35,6 +35,8 @@ atau suruh agent membaca `README.md` ini dulu lalu mengikuti skill yang cocok.
    dan seluruh isi `references/` adalah satu cara yang sudah diuji: proyek boleh memakai bentuk lain (nama
    folder, format file, alat) asal aturannya terpenuhi dan bentuk itu tercatat di bagian *Konvensi* pada
    `docs/PROJECT.md`.
+7. **Pakai indeks kode kalau ada** (CodeGraph, LSP, atau server MCP sejenis) sebelum `grep` dan membuka file
+   satu per satu. Lebih cepat dan lebih jarang melewatkan jalur kode (`start-here` aturan 12).
 
 ## Indeks skill
 

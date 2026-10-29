@@ -3,7 +3,7 @@ name: start-project
 description: Skill ini memulai proyek web dari nol (wawancara kebutuhan, memilih stack, membuat struktur dan file proyek, menyambungkan frontend-API-database pertama kali) atau memasang webcraft-skills ke proyek yang sudah ada (membaca repo, menulis file proyek, mengaudit ketidaksesuaian). Pakai saat user bilang "bikin web/aplikasi baru", "mulai proyek", atau saat proyek belum punya docs/PROJECT.md.
 license: MIT
 metadata:
-  version: "0.5"
+  version: "0.6"
   language: id
   status: draf
 ---
@@ -91,7 +91,8 @@ Lalu laporkan ke user: apa yang sudah ada, cara menjalankan, fitur pertama yang 
 
 ### 1. Baca dulu, jangan ubah apa pun
 
-README, manifest dependensi, struktur folder, config Docker/CI, **semua** dokumen di `docs/`, file
+Cek dulu alat bantu agent (`start-here` aturan 12) dan catat di PROJECT.md. Lalu baca README, manifest
+dependensi, struktur folder, config Docker/CI, **semua** dokumen di `docs/`, file
 `AGENTS.md` di mana pun (root dan subfolder), riwayat git singkat.
 
 ### 2. Tulis `docs/PROJECT.md`
@@ -145,7 +146,8 @@ sama mendapat hasil yang sama, audit dikerjakan **lengkap, bukan sampel**:
    - **Bukti semua jalur.** Butir yang berbunyi *semua/selalu/setiap/tidak pernah*, atau yang menuntut
      sesuatu **tidak ada** (tidak ada rahasia di log, tidak ada `CASCADE` di ledger), dibuktikan dengan
      **pencarian**, bukan satu contoh: tulis pola yang dicari, jumlah hasilnya, dan periksa **setiap** hasil.
-     Satu jalur yang benar tidak membuktikan semua jalur benar. Contoh:
+     Kalau ada indeks kode (`start-here` aturan 12), bukti boleh berupa hasil alat itu, mis. daftar semua
+     pemanggil fungsi kirim email. Satu jalur yang benar tidak membuktikan semua jalur benar. Contoh:
      - "pengiriman selalu lewat antrean": cari semua titik kirim (`grep -rn "Send\|send.*Email" gateway/`),
        7 hasil, 6 lewat outbox, 1 langsung di `account.go:137` → T;
      - "ledger tidak pernah dihapus": cari `ON DELETE` dan `DELETE FROM` pada tabel ledger, 2 hasil

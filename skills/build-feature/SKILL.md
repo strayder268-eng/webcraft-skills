@@ -3,7 +3,7 @@ name: build-feature
 description: Skill ini mengatur alur menambah atau mengubah fitur dari awal sampai selesai - rencana (spek fitur), catatan keputusan (ADR), urutan pengerjaan database ke API ke UI, test, review diri, cek nyata, commit, dan laporan. Pakai saat user minta fitur baru, halaman baru, perubahan alur, atau perubahan yang menyentuh lebih dari satu bagian web, juga saat perlu mencatat keputusan penting seperti menambah alat atau layanan baru.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.6"
   language: id
   status: draf
 ---
@@ -37,6 +37,8 @@ dari nol (`start-project`).
 ### 1. Pahami
 
 - Ulangi permintaan dengan kalimat sederhana. Sebut bagian web yang tersentuh (peta di `start-here`).
+- Cari kode yang sudah ada untuk hal serupa sebelum membuat yang baru (indeks kode kalau ada, `start-here`
+  aturan 12), supaya tidak membuat fungsi atau komponen kembar.
 - Tanyakan yang belum jelas, **satu kali, sekaligus**, dengan rekomendasi untuk tiap pertanyaan.
 
 ### 2. Rencana (spek fitur)

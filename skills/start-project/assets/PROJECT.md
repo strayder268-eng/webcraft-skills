@@ -76,6 +76,14 @@ Konfigurasi yang tidak ada di repo/server sendiri. Audit menandainya "cek manual
 | Lokal | | |
 | Produksi | | |
 
+## Alat bantu agent
+
+Alat yang mengindeks kode proyek dan sudah tersedia untuk agent (`start-here` aturan 12).
+
+| Alat | Untuk apa | Cara pakai / status indeks |
+|---|---|---|
+| contoh: CodeGraph (MCP) | cari simbol, sumber, dan semua pemanggil | indeks di `.codegraph/`; diperbarui oleh user |
+
 ## Belum diketahui
 
 Hal yang belum bisa dipastikan (mode proyek lama). Hapus bagian ini kalau kosong.

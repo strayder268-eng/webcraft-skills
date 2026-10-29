@@ -3,7 +3,7 @@ name: fix-bug
 description: Skill ini memperbaiki bug sampai ke akar masalahnya (reproduksi, test yang gagal dulu, telusuri per lapisan, perbaikan minimal, cek dampak) dan merapikan kode tanpa mengubah perilaku (refactor). Pakai saat ada error, fitur tidak jalan, hasil salah, data tidak konsisten, test gagal atau tidak stabil, atau saat kode perlu dipecah/dirapikan tanpa menambah fitur.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.6"
   language: id
   status: draf
 ---
@@ -55,7 +55,8 @@ yang persis di laporan.
 ### 4. Cari akar masalah
 
 - **Telusuri per lapisan** mengikuti alur data: UI → API → backend → database (peta di `start-here`).
-  Temukan lapisan **pertama** tempat data sudah salah. Perbaikan ada di situ.
+  Temukan lapisan **pertama** tempat data sudah salah. Perbaikan ada di situ. Kalau ada indeks kode
+  (`start-here` aturan 12), pakai untuk mengikuti jalur panggilan dari route sampai query.
 - **Dulu jalan, sekarang tidak?** Cari commit penyebabnya dengan `git bisect`. [git bisect]
 - **Satu dugaan sekali uji.** Ubah satu hal, lihat hasilnya, catat. Jangan mengubah banyak hal sekaligus.
 - Tanyakan "kenapa" sampai ketemu penyebab yang bisa diperbaiki, bukan berhenti di gejala.
@@ -68,7 +69,8 @@ yang persis di laporan.
 
 ### 6. Cek dampak
 
-- Cari pola yang sama di tempat lain (mis. `grep`). Kalau penyebabnya sama dan masih dalam lingkup, perbaiki
+- Cari pola yang sama di tempat lain, dan semua pemanggil kode yang diubah (indeks kode kalau ada, `grep`
+  kalau tidak). Kalau penyebabnya sama dan masih dalam lingkup, perbaiki
   juga; kalau tidak, catat di laporan.
 - **Bug sempat merusak data di produksi?** Berhenti dan laporkan ke user. Perbaikan data adalah pekerjaan
   terpisah: rencana tertulis, backup dulu (`operate-app`), dan izin user sebelum dijalankan.

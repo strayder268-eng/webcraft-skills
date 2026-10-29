@@ -3,7 +3,7 @@ name: start-here
 description: Skill ini adalah pintu masuk webcraft-skills. Isinya peta bagian web (frontend, API, backend, database, infra), letak file proyek, aturan kerja umum, dan cara memilih skill yang tepat. Pakai saat permintaan user masih umum atau berbahasa awam ("bikin web", "tambah login", "webnya error", "mau deploy"), saat belum jelas skill mana yang cocok, atau saat mulai bekerja di proyek yang memakai webcraft-skills.
 license: MIT
 metadata:
-  version: "0.4"
+  version: "0.6"
   language: id
   status: draf
 ---
@@ -114,7 +114,15 @@ Satu permintaan bisa menyentuh beberapa skill. Pakai `build-feature` sebagai pen
     dirapikan saat bagian itu disentuh atau lewat tugas tersendiri, bukan "sekalian" di tugas lain.
     Pengecualian: **letak folder**. Kode baru mengikuti struktur yang ada sampai pemindahan diputuskan, supaya
     proyek tidak punya dua pola sekaligus.
-12. **Tanya atau tulis "belum diketahui"?** Saat bekerja bersama user: tanya. Saat audit atau tugas tanpa user
+12. **Pakai indeks kode kalau ada.** Sebelum mencari dengan `grep` atau membuka file satu per satu, cek
+    apakah agent punya alat yang sudah mengindeks kode proyek: CodeGraph, server bahasa (LSP), atau server MCP
+    sejenis. Kalau ada, pakai itu **dulu** untuk mencari simbol, membaca sumbernya, dan melihat siapa yang
+    memanggil apa (termasuk jalur yang tidak tertangkap `grep`, seperti pemanggilan lewat interface). `grep`
+    dan membaca file dipakai untuk yang tidak dicakup alat itu: teks, config, SQL, dokumen. Lebih cepat, lebih
+    hemat, dan lebih jarang ada jalur yang terlewat. Alat yang tersedia dicatat di *Alat bantu agent*
+    `docs/PROJECT.md`. Membuat atau memperbarui indeks adalah keputusan user; agent tidak menjalankannya
+    sendiri tanpa izin.
+13. **Tanya atau tulis "belum diketahui"?** Saat bekerja bersama user: tanya. Saat audit atau tugas tanpa user
     (mode B): tulis "belum diketahui" dan kumpulkan pertanyaannya di laporan akhir.
 
 ## Langkah
