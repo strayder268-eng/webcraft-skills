@@ -38,11 +38,11 @@ Status: `belum` = belum ditulis, `draf` = ditulis tapi belum diuji, `stabil` = l
 
 | Kelompok | Skill | Pakai saat | Status |
 |---|---|---|---|
-| Alur kerja | `start-here` | permintaan masih umum; peta bagian web dan skill mana yang mengurusnya | belum |
+| Alur kerja | `start-here` | permintaan masih umum; peta bagian web dan skill mana yang mengurusnya | draf |
 | | `start-project` | memulai proyek baru: kebutuhan, stack, struktur, file proyek | belum |
-| | `build-feature` | menambah fitur: rencana → kerjakan → review → commit → catat keputusan | belum |
+| | `build-feature` | menambah fitur: rencana → kerjakan → review → commit → catat keputusan | draf |
 | | `fix-bug` | ada yang salah atau kode perlu dirapikan tanpa mengubah perilaku | belum |
-| Struktur & data | `structure-project` | menentukan letak file, batas modul, config dan rahasia | belum |
+| Struktur & data | `structure-project` | menentukan letak file, batas modul, config dan rahasia | draf |
 | | `design-api` | menambah/mengubah endpoint: kontrak, error, validasi, pagination, idempotency | belum |
 | | `change-database` | menambah/mengubah tabel, index, migrasi, tipe uang/waktu | belum |
 | | `build-backend` | logika server: lapisan, error, log, cache, antrean, rate limit | belum |
