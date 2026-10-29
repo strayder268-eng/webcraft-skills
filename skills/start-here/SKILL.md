@@ -3,7 +3,7 @@ name: start-here
 description: Skill ini adalah pintu masuk webcraft-skills. Isinya peta bagian web (frontend, API, backend, database, infra), letak file proyek, aturan kerja umum, dan cara memilih skill yang tepat. Pakai saat permintaan user masih umum atau berbahasa awam ("bikin web", "tambah login", "webnya error", "mau deploy"), saat belum jelas skill mana yang cocok, atau saat mulai bekerja di proyek yang memakai webcraft-skills.
 license: MIT
 metadata:
-  version: "0.6"
+  version: "0.7"
   language: id
   status: draf
 ---
@@ -130,7 +130,11 @@ Satu permintaan bisa menyentuh beberapa skill. Pakai `build-feature` sebagai pen
 1. Cek `AGENTS.md` (root) dan `docs/PROJECT.md`.
    - Ada: baca keduanya, termasuk bagian *Konvensi* dan *Dikelola di luar repo*.
    - Tidak ada: jangan mulai skill lain dulu. Jalankan `start-project` (mode A untuk repo kosong, mode B untuk
-     repo yang sudah berisi kode). Pengecualian: user hanya bertanya, tidak meminta perubahan.
+     repo yang sudah berisi kode). Pengecualian:
+     - user hanya bertanya, tidak meminta perubahan;
+     - user memberi **tugas kecil yang jelas** (satu bug, satu perubahan kecil) beserta lingkup, perintah yang
+       boleh dijalankan, dan larangannya. Instruksi tugas itu dipakai sebagai pengganti sementara; di laporan
+       sebut bahwa file proyek belum ada dan tawarkan `start-project`.
 2. Ulangi permintaan user dengan kalimat sederhana, sebut bagian web yang tersentuh (pakai peta di atas).
 3. Pilih skill dari tabel. Kalau tidak ada yang cocok, katakan terus terang dan kerjakan dengan aturan kerja di
    atas.

@@ -3,7 +3,7 @@ name: write-tests
 description: Skill ini menulis test yang benar-benar menjaga perilaku - pembagian unit, integrasi, dan end-to-end, apa yang wajib diuji (alur utama, error, izin, uang, bersamaan), test yang stabil dan tidak bergantung waktu/jaringan, data test yang bersih, penanganan test tidak stabil, dan menjalankannya di CI. Pakai saat menambah fitur, memperbaiki bug, mengubah kode yang belum punya test, menulis test database/API/UI/browser, atau saat test gagal acak.
 license: MIT
 metadata:
-  version: "0.5"
+  version: "0.7"
   language: id
   status: draf
 ---
@@ -59,7 +59,11 @@ Untuk setiap fitur:
 - **urutan/filter di luar daftar yang diizinkan** ditolak 422, bukan diabaikan diam-diam;
 - **jumlah query** endpoint daftar/halaman utama: tetap sama untuk 5 baris maupun 50 baris, dan tidak melebihi
   target di `build-backend` aturan 12. Test ini mencegah N+1 kembali diam-diam;
-- uang/saldo/kuota: request **bersamaan** dan request **diulang** (idempotency) tidak membuat hitungan salah.
+- uang/saldo/kuota: request **bersamaan** dan request **diulang** (idempotency) tidak membuat hitungan salah;
+- **penjaga di rute** (login wajib, peran, step-up, rate limit): diuji lewat pemasangan rute yang **sama**
+  dengan produksi (satu fungsi pendaftar rute yang dipakai `main` dan test), bukan router salinan di test.
+  Request tanpa izin harus ditolak dan handler-nya **tidak dipanggil**. Contoh tanpa database di
+  `references/go.md`.
 
 Untuk setiap bug: test yang mereproduksi bug, ditulis sebelum perbaikan (`fix-bug`).
 
@@ -125,6 +129,9 @@ Prioritas audit: P3.
 
 - [ ] Kasus wajib di aturan 2 tercakup untuk fitur/bug ini.
 - [ ] Seluruh test lulus dua kali berturut-turut (cek stabil); untuk Go juga dengan `-race`.
+- [ ] Test yang dilewati (skip) **tidak** dihitung lulus. Laporan memisahkan lulus, gagal, dan skip beserta
+  alasannya. Test yang di-skip karena butuh database/Redis wajib dijalankan di container test sebelum
+  merge, oleh agent atau orang yang punya akses.
 - [ ] Tidak ada data tersisa setelah test.
 - [ ] Perintah dan hasil test dilampirkan di laporan.
 

@@ -3,7 +3,7 @@ name: build-admin-panel
 description: Skill ini membangun panel admin yang aman dan bisa diaudit - area terpisah, peran dengan hak minimum, 2FA wajib, konfirmasi ulang untuk aksi sensitif, audit log yang tidak bisa diubah, aksi lewat aturan bisnis yang sama dengan user, persetujuan dua orang untuk aksi berisiko tinggi, dan perlindungan data pribadi. Pakai saat membuat atau mengubah halaman/endpoint admin, menambah peran admin, aksi admin atas uang/akun/pengaturan, atau melihat dan mengekspor data user.
 license: MIT
 metadata:
-  version: "0.5"
+  version: "0.7"
   language: id
   status: draf
 ---
@@ -72,7 +72,14 @@ Prioritas audit: P1.
 
 - **2FA wajib** untuk setiap akun dengan peran admin. Belum aktif → dipaksa mendaftar sebelum bisa masuk panel.
 - Aksi sensitif meminta kode 2FA lagi (berlaku beberapa menit): ubah peran, ubah saldo, setujui/tolak
-  pembayaran, refund, ubah harga/pengaturan uang/keamanan, ekspor data, hapus data.
+  pembayaran, refund, ubah harga/pengaturan uang/keamanan, ubah kredensial layanan luar, ekspor data, hapus
+  data.
+- Cara memasang:
+  - **Selalu** minta step-up untuk endpoint yang setiap pemanggilannya sensitif: membuat atau menghapus objek
+    bernilai uang (produk berharga, kode voucher, kunci layanan), ubah peran, hapus user.
+  - **Bersyarat** boleh untuk endpoint campuran (satu objek punya field uang dan field biasa): step-up hanya
+    bila request menyentuh field sensitif. Field yang tidak dikenal dianggap sensitif.
+  - Ragu → selalu.
 
 ### 4. Aksi lewat jalur yang sama
 

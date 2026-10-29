@@ -35,6 +35,64 @@ router.ServeHTTP(rec, req)
 if rec.Code != http.StatusCreated { t.Fatalf("status %d: %s", rec.Code, rec.Body) }
 ```
 
+## Penjaga di rute, tanpa database
+
+Rute didaftarkan oleh **satu fungsi** yang dipakai `main` dan test. Handler asli diisi di `main`; test
+mengisinya dengan handler pengganti, sehingga yang diuji adalah pemasangan penjaga yang sama dengan produksi.
+
+```go
+// routes.go
+type AdminHandlers struct {
+    PlanList, PlanCreate, PlanUpdate, PlanDelete http.Handler
+}
+
+func RegisterAdminRoutes(mux *http.ServeMux, h AdminHandlers) {
+    mux.Handle("GET /api/admin/plans", h.PlanList)
+    mux.Handle("POST /api/admin/plans", requireStepUp(h.PlanCreate))
+    mux.Handle("PATCH /api/admin/plans/{id}", requireStepUp(h.PlanUpdate))
+    mux.Handle("DELETE /api/admin/plans/{id}", requireStepUp(h.PlanDelete))
+}
+```
+
+```go
+// routes_test.go
+func TestAksiPlanButuhStepUp(t *testing.T) {
+    called := ""
+    stub := func(name string) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+            called = name
+            w.WriteHeader(http.StatusNoContent)
+        })
+    }
+    mux := http.NewServeMux()
+    RegisterAdminRoutes(mux, AdminHandlers{
+        PlanList: stub("list"), PlanCreate: stub("create"),
+        PlanUpdate: stub("update"), PlanDelete: stub("delete"),
+    })
+    for _, tc := range []struct{ method, path string }{
+        {"POST", "/api/admin/plans"}, {"PATCH", "/api/admin/plans/7"}, {"DELETE", "/api/admin/plans/7"},
+    } {
+        for _, fresh := range []bool{false, true} {
+            called = ""
+            req := httptest.NewRequest(tc.method, tc.path, nil)
+            req = req.WithContext(WithSession(req.Context(), &Session{StepUpFresh: fresh}))
+            rec := httptest.NewRecorder()
+            mux.ServeHTTP(rec, req)
+            if !fresh && (rec.Code != http.StatusForbidden || called != "") {
+                t.Errorf("%s %s tanpa step-up: status %d, handler %q dipanggil", tc.method, tc.path, rec.Code, called)
+            }
+            if fresh && rec.Code != http.StatusNoContent {
+                t.Errorf("%s %s dengan step-up: status %d", tc.method, tc.path, rec.Code)
+            }
+        }
+    }
+}
+```
+
+Penjaga dihapus dari satu rute → test gagal dengan pesan `DELETE /api/admin/plans/7 tanpa step-up: status 204,
+handler "delete" dipanggil`. Router seperti chi juga bisa diperiksa dengan `chi.Walk` (daftar middleware per
+rute), tapi menguji lewat request seperti di atas tidak bergantung pada library router.
+
 ## Layanan luar tiruan
 
 ```go

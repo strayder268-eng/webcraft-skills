@@ -3,7 +3,7 @@ name: fix-bug
 description: Skill ini memperbaiki bug sampai ke akar masalahnya (reproduksi, test yang gagal dulu, telusuri per lapisan, perbaikan minimal, cek dampak) dan merapikan kode tanpa mengubah perilaku (refactor). Pakai saat ada error, fitur tidak jalan, hasil salah, data tidak konsisten, test gagal atau tidak stabil, atau saat kode perlu dipecah/dirapikan tanpa menambah fitur.
 license: MIT
 metadata:
-  version: "0.6"
+  version: "0.7"
   language: id
   status: draf
 ---
@@ -82,7 +82,8 @@ yang persis di laporan.
 
 ### 8. Commit dan laporan
 
-- Commit `fix: …` (atau konvensi proyek). Pesan menyebut **penyebab**, bukan hanya "perbaiki bug".
+- Ikuti format commit yang sudah dipakai proyek (lihat `git log`); `fix: …` hanya kalau proyek belum punya
+  format sendiri. Pesan menyebut **penyebab**, bukan hanya "perbaiki bug".
 - Laporan bahasa sederhana: apa penyebabnya, apa yang diubah, bagaimana dicek, cara mencegahnya terulang.
 
 ## Mode rapikan (refactor)
@@ -109,7 +110,8 @@ Refactor = mengubah struktur kode **tanpa mengubah perilaku** yang terlihat dari
 
 - [ ] Bug bisa direproduksi sebelum diperbaiki (atau alasan tidak bisa dicatat).
 - [ ] Ada test yang dulu gagal dan sekarang lulus.
-- [ ] Seluruh test lulus; hasil perintah dilampirkan di laporan.
+- [ ] Seluruh test lulus; hasil perintah dilampirkan di laporan, dengan test yang dilewati (skip) disebut
+  terpisah beserta alasannya.
 - [ ] Penyebab tertulis di commit dan laporan.
 - [ ] Mode rapikan: tidak ada test yang perlu diubah ekspektasinya.
 
