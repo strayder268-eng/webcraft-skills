@@ -49,10 +49,10 @@ Status: `belum` = belum ditulis, `draf` = ditulis tapi belum diuji, `stabil` = l
 | UI | `setup-design-system` | menentukan token warna, font, spasi, tema proyek | draf |
 | | `build-ui` | membuat komponen, halaman, form; responsif, aksesibilitas, SEO, performa | draf |
 | | `manage-translations` | teks yang tampil ke user, menambah bahasa | draf |
-| Fitur umum | `implement-auth` | daftar, login (email/OAuth/Telegram), sesi, reset, 2FA, peran | belum |
-| | `implement-payment` | gateway bayar, webhook, saldo/ledger, uang | belum |
-| | `send-notifications` | email, Telegram, notifikasi dalam aplikasi | belum |
-| | `build-admin-panel` | panel admin, audit log, konfirmasi aksi sensitif | belum |
+| Fitur umum | `implement-auth` | daftar, login (email/OAuth/Telegram), sesi, reset, 2FA, peran | draf |
+| | `implement-payment` | gateway bayar, webhook, saldo/ledger, uang | draf |
+| | `send-notifications` | email, Telegram, notifikasi dalam aplikasi | draf |
+| | `build-admin-panel` | panel admin, audit log, konfirmasi aksi sensitif | draf |
 | Kualitas & keamanan | `secure-feature` | fitur menyentuh login, uang, data pribadi, file, pihak ketiga; menambah library | belum |
 | | `write-tests` | menulis atau memperbaiki test | belum |
 | | `write-docs` | README, cara menjalankan, dokumentasi API | belum |

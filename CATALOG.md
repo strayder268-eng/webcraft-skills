@@ -42,3 +42,8 @@ Redis **tidak** termasuk bawaan; tambah hanya kalau syaratnya terpenuhi (lihat d
 | Platform | Supabase | belum | ingin PostgreSQL + login + penyimpanan file siap pakai tanpa mengurus server | butuh kendali penuh atas backend |
 | Infra | Docker / Docker Compose | tahap-1 | menjalankan aplikasi sama persis di laptop dan server | — |
 | | GitHub Actions | tahap-1 | build, test, dan image otomatis | — |
+| Login | Google (OpenID Connect) | tahap-1 | user umum punya akun Google | — |
+| | Telegram (OpenID Connect) | tahap-1 | komunitas/pengguna aktif di Telegram | widget lama berbasis `hash`: jangan untuk proyek baru |
+| Pembayaran | DOKU / Midtrans / Xendit | belum | pembayaran lokal Indonesia (VA, QRIS, e-wallet) | — |
+| | Stripe | belum | kartu internasional | — |
+| Email | penyedia email transaksional (SMTP/API) | belum | email verifikasi, reset, struk | kirim langsung dari server aplikasi |
