@@ -1,0 +1,14 @@
+{
+  "name": "webcraft-skills",
+  "description": "Skill standar membangun web: alur kerja, struktur, API, database, UI, keamanan, infra.",
+  "owner": {
+    "name": "strayder"
+  },
+  "plugins": [
+    {
+      "name": "webcraft-skills",
+      "source": "./",
+      "description": "Satu set skill standar untuk membangun web yang rapi dari UI sampai database."
+    }
+  ]
+}

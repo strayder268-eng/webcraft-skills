@@ -1,0 +1,10 @@
+{
+  "name": "webcraft-skills",
+  "description": "Satu set skill standar untuk membangun web yang rapi dari UI sampai database.",
+  "version": "0.1.0",
+  "author": {
+    "name": "strayder"
+  },
+  "repository": "https://github.com/strayder268-eng/webcraft-skills",
+  "license": "MIT"
+}
