@@ -1,6 +1,6 @@
 ---
 name: build-backend
-description: Skill ini menulis logika server yang rapi dan tahan gangguan - pembagian lapisan, penanganan error, log terstruktur, batas waktu dan retry ke layanan luar, cache, pekerjaan latar/antrean, rate limit, penyimpanan kunci idempotency, health check, dan mati dengan rapi. Pakai saat menulis atau mengubah logika backend, memanggil layanan luar, menambah cache atau Redis, membuat pekerjaan terjadwal/latar, menambah rate limit, atau menambah log.
+description: Skill ini menulis logika server yang rapi dan tahan gangguan - pembagian lapisan, penanganan error, log terstruktur, batas waktu dan retry ke layanan luar, cache, pekerjaan latar/antrean, rate limit, penyimpanan kunci idempotency, health check, mati dengan rapi, dan mengukur serta memperbaiki performa. Pakai saat menulis atau mengubah logika backend, memanggil layanan luar, menambah cache atau Redis, membuat pekerjaan terjadwal/latar, menambah rate limit, menambah log, atau saat endpoint lambat/boros query.
 license: MIT
 metadata:
   version: "0.1"
@@ -124,9 +124,47 @@ berjalan dalam batas waktu, tutup koneksi database/Redis, lalu keluar.
   memakan CPU/koneksi.
 - Ukuran input, hasil query, dan file dibatasi.
 
+### 12. Performa
+
+**Urutan kerja: ukur → temukan penyebab → perbaiki satu hal → ukur lagi.** Tidak ada optimasi berdasarkan
+tebakan. [Google SRE: Monitoring]
+
+Target bawaan (sesuaikan di `docs/PROJECT.md`) [keputusan webcraft]:
+
+| Ukuran | Target |
+|---|---|
+| Endpoint baca biasa, waktu di server, p95 | < 200 ms |
+| Endpoint tulis biasa, p95 | < 500 ms |
+| Query per request | ≤ 5 untuk endpoint biasa |
+| Endpoint daftar | jumlah query **tetap**, tidak bertambah mengikuti jumlah baris |
+
+Alat ukur (cara per bahasa di `references/`):
+
+- **Jumlah query dan waktu database per request** dicatat di log request. Ini cara tercepat menemukan N+1.
+- **Query terberat di produksi:** statistik query database (PostgreSQL: `pg_stat_statements`), diurutkan
+  berdasarkan total waktu. Query yang sama dipanggil ratusan kali per detik adalah tanda N+1.
+- **CPU/memori proses:** profiler bahasa (Go: `pprof`) di port internal saja.
+- **Waktu per bagian** di browser lewat header `Server-Timing` (`db;dur=12, total;dur=40`), hanya di
+  pengembangan/admin karena membocorkan informasi waktu.
+
+Urutan perbaikan, dari yang paling sering jadi penyebab:
+
+1. **Terlalu banyak query** (N+1) → satukan dengan `JOIN` atau `WHERE id = ANY($1)` (`change-database`).
+   Setiap query membayar jeda jaringan ke database; 100 query × 2 ms = 200 ms walau tiap query cepat.
+2. **Query lambat** → `EXPLAIN ANALYZE`, index yang sesuai (`change-database`).
+3. **Data terlalu besar** → ambil kolom seperlunya, pagination, kompresi response.
+4. **Pekerjaan lambat di dalam request** → pindahkan ke antrean (aturan 6), atau jalankan bersamaan kalau
+   saling bebas.
+5. **Baru setelah itu cache** (aturan 5). Cache yang dipasang di atas N+1 hanya menyembunyikan masalah, yang
+   akan muncul lagi setiap cache kosong.
+
+Setiap perbaikan dicatat angkanya: sebelum dan sesudah (query/request, p95), dan dijaga test jumlah query
+(`write-tests`) supaya tidak kembali.
+
 ## Larangan
 
 - Mengabaikan error atau menelan error tanpa log.
+- Mengoptimasi tanpa angka sebelum/sesudah, atau langsung memasang cache tanpa mencari penyebab.
 - Memanggil jaringan tanpa timeout; retry tanpa batas.
 - Retry operasi tulis yang tidak idempoten.
 - Cache tanpa TTL; cache data user tanpa ID user di kunci.
@@ -139,6 +177,7 @@ berjalan dalam batas waktu, tutup koneksi database/Redis, lalu keluar.
 - [ ] Setiap panggilan luar punya timeout.
 - [ ] Log request punya ID request; tidak ada rahasia di log (cek output test/log lokal).
 - [ ] `/healthz` dan `/readyz` merespons; aplikasi mati rapi saat dihentikan.
+- [ ] Log request mencatat jumlah query dan waktu database; endpoint yang diubah memenuhi target aturan 12.
 
 ## Stack
 
@@ -152,4 +191,5 @@ berjalan dalam batas waktu, tutup koneksi database/Redis, lalu keluar.
 - [The Twelve-Factor App: Logs](https://12factor.net/logs).
 - [AWS Builders' Library: Timeouts, retries and backoff with jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/).
 - [microservices.io: Transactional outbox](https://microservices.io/patterns/data/transactional-outbox.html).
+- [Google SRE Book: Monitoring Distributed Systems](https://sre.google/sre-book/monitoring-distributed-systems/): latensi persentil, bukan rata-rata.
 - [Kubernetes: Liveness, Readiness, and Startup Probes](https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/): pembedaan liveness dan readiness.

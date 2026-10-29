@@ -51,6 +51,8 @@ jobs:
           context: ${{ matrix.app }}
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.app }}:sha-${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,scope=${{ matrix.app }},mode=max
 ```
 
 Ganti setiap `<sha-commit>` dengan SHA rilis action yang dipakai (lihat halaman rilis action itu).

@@ -9,9 +9,10 @@ Versi image di contoh ini hanya contoh. Pakai versi yang sesuai proyek dan tulis
 FROM golang:1.25-alpine AS build
 WORKDIR /src
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/server ./cmd/server
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/server ./cmd/server
 
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/server /server
@@ -35,7 +36,7 @@ export default { output: 'standalone' };
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 FROM node:22-alpine AS build
 WORKDIR /app
@@ -124,8 +125,24 @@ secrets:
 
 `db` tidak punya `ports`: hanya bisa dicapai dari dalam jaringan compose.
 
+## Efisiensi
+
+- `--mount=type=cache` (BuildKit) menyimpan unduhan dependensi dan cache compile antar build, tanpa ikut masuk
+  image. Butuh BuildKit (bawaan Docker modern dan `docker/build-push-action`).
+- Di GitHub Actions, simpan cache layer: `cache-from: type=gha` dan `cache-to: type=gha,mode=max` pada
+  `docker/build-push-action`.
+- Ukuran image: `docker image ls <nama>`; rincian per layer: `docker history <image>`.
+- Pemakaian nyata untuk menentukan batas: `docker stats --no-stream`.
+- Bersihkan image lama di server, sisakan beberapa versi untuk rollback:
+
+```sh
+docker image prune -a --filter "until=336h" -f   # hapus image tak terpakai yang lebih tua dari 14 hari
+```
+
 ## Sumber
 
+- [Docker: Optimize cache usage in builds](https://docs.docker.com/build/cache/optimize/)
+- [Docker: GitHub Actions cache](https://docs.docker.com/build/cache/backends/gha/)
 - [Docker: Multi-stage builds](https://docs.docker.com/build/building/multi-stage/)
 - [Docker Compose: secrets](https://docs.docker.com/compose/how-tos/use-secrets/)
 - [Next.js: output standalone](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)

@@ -115,6 +115,39 @@ func TestListRejectsUnknownSort(t *testing.T) {
 }
 ```
 
+## Jumlah query (mencegah N+1)
+
+Memakai penghitung query dari `build-backend/references/go.md` (pool test dibuat dengan
+`cfg.ConnConfig.Tracer = db.CountingTracer{}`):
+
+```go
+func TestListOrdersQueryCountIsConstant(t *testing.T) {
+    pool := testDB(t)
+    svc := orders.NewService(pool)
+    userID := seedUserWithOrders(t, pool, 50)
+
+    count := func(limit int) int64 {
+        ctx, stats := db.WithQueryStats(context.Background())
+        if _, err := svc.List(ctx, userID, limit); err != nil {
+            t.Fatal(err)
+        }
+        return stats.Count.Load()
+    }
+
+    small, large := count(5), count(50)
+    if small != large {
+        t.Fatalf("jumlah query bertambah mengikuti baris (%d untuk 5, %d untuk 50): N+1", small, large)
+    }
+    if large > 3 {
+        t.Fatalf("List memakai %d query, batas 3", large)
+    }
+}
+```
+
+Contoh hasil nyata pada 100 baris: versi N+1 = 101 query (18,5 ms di database lokal), versi `ANY($1)` = 2
+query (1,0 ms), versi `JOIN` = 1 query (0,7 ms). Di server dengan jeda jaringan ke database, selisihnya jauh
+lebih besar.
+
 ## Bersamaan
 
 ```go

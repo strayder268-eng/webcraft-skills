@@ -48,6 +48,8 @@ Untuk setiap fitur:
   `' OR '1'='1`, `'; DROP TABLE users; --`, `%`, `_`, `\`. Hasil yang benar: 422 untuk nilai yang tidak
   diizinkan, atau diperlakukan sebagai teks biasa. Setelah test, tabel dan jumlah barisnya tidak berubah;
 - **urutan/filter di luar daftar yang diizinkan** ditolak 422, bukan diabaikan diam-diam;
+- **jumlah query** endpoint daftar/halaman utama: tetap sama untuk 5 baris maupun 50 baris, dan tidak melebihi
+  target di `build-backend` aturan 12. Test ini mencegah N+1 kembali diam-diam;
 - uang/saldo/kuota: request **bersamaan** dan request **diulang** (idempotency) tidak membuat hitungan salah.
 
 Untuk setiap bug: test yang mereproduksi bug, ditulis sebelum perbaikan (`fix-bug`).

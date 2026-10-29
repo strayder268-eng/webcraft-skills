@@ -125,6 +125,21 @@ Langkah *contract* (hapus kolom lama) baru dijalankan setelah versi baru stabil,
 - Panggilan keluar ke layanan luar selalu memverifikasi sertifikat; mematikan verifikasi
   (`InsecureSkipVerify`, `NODE_TLS_REJECT_UNAUTHORIZED=0`) dilarang di luar test lokal.
 
+### 11. Efisiensi resource
+
+- **Build cepat:** urutan layer dari yang jarang berubah ke yang sering berubah (salin file dependensi →
+  instal → baru salin kode), cache build di CI, dan cache unduhan dependensi di dalam build
+  (`references/docker.md`). Mengubah satu baris kode tidak boleh mengunduh ulang semua dependensi.
+- **Image kecil:** multi-stage, image dasar kecil, tanpa alat build. Ukuran image dicatat; kenaikan besar
+  diperiksa sebabnya.
+- **Batas CPU/memori dari hasil ukur**, bukan tebakan: lihat pemakaian nyata (`docker stats`) saat beban biasa
+  dan puncak, beri ruang ±30-50%, lalu pasang batasnya. Container yang kena batas memori (OOM) harus terlihat di
+  pemantauan (`operate-app`).
+- **Pool dan worker sesuai kapasitas:** jumlah koneksi pool database semua instance ditotal tidak melebihi
+  `max_connections` database dikurangi cadangan untuk admin/migrasi.
+- **Disk:** rotasi log container, hapus image lama terjadwal tapi sisakan beberapa versi terakhir untuk
+  rollback.
+
 ## Larangan
 
 - Build atau edit kode langsung di server produksi.
@@ -140,6 +155,7 @@ Langkah *contract* (hapus kolom lama) baru dijalankan setelah versi baru stabil,
 - [ ] `curl -I https://domain` menunjukkan HTTPS valid dan header keamanan.
 - [ ] Rollback sudah pernah dicoba (minimal sekali di staging/lokal).
 - [ ] Dari luar: `/.git/`, `/.env`, endpoint debug, dan file `.map` mengembalikan 404.
+- [ ] Build ulang setelah mengubah satu file kode tidak mengunduh ulang dependensi (cache bekerja).
 - [ ] Tidak ada rahasia di image (`docker history`, isi image) maupun di log CI.
 
 ## Stack

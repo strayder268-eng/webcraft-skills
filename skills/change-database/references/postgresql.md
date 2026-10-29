@@ -136,6 +136,33 @@ WHERE name ILIKE '%' || $1 || '%' ESCAPE '\'
 LIMIT 50;
 ```
 
+## Mencari query terberat (pg_stat_statements)
+
+Aktifkan sekali (butuh restart database):
+
+```yaml
+# compose
+db:
+  image: postgres:16-alpine
+  command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
+```
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+
+-- 10 query yang paling banyak memakan waktu database
+SELECT calls,
+       round(total_exec_time::numeric, 1) AS total_ms,
+       round(mean_exec_time::numeric, 2)  AS rata_ms,
+       left(query, 80)                    AS query
+FROM pg_stat_statements
+ORDER BY total_exec_time DESC
+LIMIT 10;
+```
+
+Tanda N+1: query sederhana (`SELECT … WHERE id = $1`) dengan `calls` jauh lebih besar daripada jumlah request
+endpoint-nya. Setelah perbaikan, `SELECT pg_stat_statements_reset();` lalu ukur ulang.
+
 ## Membaca rencana query
 
 ```sql
@@ -149,6 +176,7 @@ Tanda bahaya: `Seq Scan` pada tabel besar untuk query yang sering dipanggil, est
 - [PostgreSQL: ALTER TABLE](https://www.postgresql.org/docs/current/sql-altertable.html): `NOT VALID`, `SET NOT NULL`, default kolom.
 - [PostgreSQL: CREATE INDEX (CONCURRENTLY)](https://www.postgresql.org/docs/current/sql-createindex.html).
 - [PostgreSQL: PL/pgSQL dynamic commands (format, USING)](https://www.postgresql.org/docs/current/plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN)
+- [PostgreSQL: pg_stat_statements](https://www.postgresql.org/docs/current/pgstatstatements.html)
 - [PostgreSQL: Pattern matching (LIKE, ESCAPE)](https://www.postgresql.org/docs/current/functions-matching.html)
 - [PostgreSQL: Table Partitioning](https://www.postgresql.org/docs/current/ddl-partitioning.html).
 - [PostgreSQL: UUID Functions](https://www.postgresql.org/docs/current/functions-uuid.html).
