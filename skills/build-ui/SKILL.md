@@ -3,7 +3,7 @@ name: build-ui
 description: Skill ini membuat komponen, halaman, dan form yang konsisten dengan sistem desain - pemakaian ulang komponen dasar, varian lewat props, keadaan memuat/kosong/error, form yang benar, aksesibilitas (WCAG 2.2 AA), responsif, performa (Core Web Vitals), dan SEO. Pakai saat membuat atau mengubah komponen UI, halaman, form, tabel/daftar, dialog, atau saat tampilan berantakan, lambat, tidak rapi di HP, atau sulit dipakai dengan keyboard.
 license: MIT
 metadata:
-  version: "0.4"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -32,6 +32,8 @@ keyboard dan pembaca layar), enak di HP, dan cepat dibuka.
 
 ### 1. Komponen
 
+Prioritas audit: P4.
+
 - **Cek dulu** daftar komponen di dokumen desain (`docs/DESIGN.md` atau nama yang tercatat di *Konvensi*). Kalau sudah ada, pakai. Kalau hampir cocok, tambah varian.
   Tidak membuat komponen kembar.
 - **Varian lewat props** (`variant`, `size`), dengan pilihan terbatas yang tercatat di `docs/DESIGN.md`.
@@ -49,6 +51,8 @@ keyboard dan pembaca layar), enak di HP, dan cepat dibuka.
 - Komponen baru dasar dicatat di tabel komponen `docs/DESIGN.md`.
 
 ### 2. Halaman
+
+Prioritas audit: P3.
 
 Kerangka setiap halaman:
 
@@ -72,6 +76,8 @@ Setiap bagian yang memuat data punya **empat keadaan**:
 
 ### 3. Form [WAI: Forms tutorial]
 
+Prioritas audit: P3.
+
 - Setiap field punya **label yang selalu terlihat**. Placeholder bukan label.
 - Field wajib ditandai; format yang diharapkan dijelaskan sebelum user salah.
 - Validasi saat kirim, lalu per field saat field ditinggalkan. Pesan error **di dekat field**, terhubung ke
@@ -82,6 +88,8 @@ Setiap bagian yang memuat data punya **empat keadaan**:
 - Tipe input dan `autocomplete` yang tepat (`email`, `tel`, `current-password`, `one-time-code`).
 
 ### 4. Aksesibilitas, target WCAG 2.2 AA [WCAG 2.2]
+
+Prioritas audit: P3.
 
 - HTML semantik: `<button>` untuk aksi, `<a>` untuk pindah halaman, urutan judul berjenjang, landmark
   (`header`, `nav`, `main`, `footer`).
@@ -95,12 +103,16 @@ Setiap bagian yang memuat data punya **empat keadaan**:
 
 ### 5. Responsif
 
+Prioritas audit: P3.
+
 - Rancang dari layar HP dulu, lalu lebar.
 - Cek di lebar ±360, 768, 1280 px. Lebar 320 px tidak boleh memunculkan scroll horizontal di halaman
   (SC 1.4.10), dan halaman tetap terpakai saat di-zoom 200%.
 - Tabel lebar: di HP jadi daftar kartu, atau scroll horizontal **di dalam** wadah tabel saja.
 
 ### 6. Performa [web.dev: Core Web Vitals]
+
+Prioritas audit: P3.
 
 Target pada persentil ke-75 pengunjung: **LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1**.
 
@@ -115,6 +127,8 @@ Target pada persentil ke-75 pengunjung: **LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤
 - Library tambahan dicek dulu ukurannya dan lewat `secure-feature`.
 
 ### 7. SEO (halaman publik) [Google: SEO Starter Guide]
+
+Prioritas audit: P3.
 
 - `title` dan `description` unik per halaman; satu `h1`.
 - URL bersih dan bermakna; `canonical` untuk halaman yang bisa diakses dari beberapa URL.

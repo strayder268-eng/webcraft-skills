@@ -3,7 +3,7 @@ name: implement-auth
 description: Skill ini membuat fitur akun yang aman - daftar, login (email+sandi, Google, Telegram, atau penyedia OpenID Connect lain), sesi dan cookie, logout, reset sandi, verifikasi email, 2FA/TOTP, konfirmasi ulang untuk aksi sensitif, peran dan izin, kunci API, JWT, serta pencegahan CSRF dan penebakan akun. Pakai saat menambah atau mengubah login, pendaftaran, sesi, lupa sandi, 2FA, peran user/admin, halaman yang wajib login, atau menghubungkan akun ke Google/Telegram, menerbitkan kunci API, atau memakai JWT.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -31,6 +31,8 @@ pengiriman email/OTP (`send-notifications`).
 
 ### 1. Memilih metode login (ADR)
 
+Prioritas audit: P1.
+
 - Login lewat penyedia (Google, Telegram, dll. dengan OpenID Connect) mengurangi risiko menyimpan sandi.
   Email + sandi hanya kalau memang dibutuhkan.
 - Satu user bisa punya beberapa cara login. Simpan di tabel identitas terpisah:
@@ -40,6 +42,8 @@ pengiriman email/OTP (`send-notifications`).
   karena email-nya sama, karena itu bisa dipakai mengambil alih akun.
 
 ### 2. Sandi (kalau dipakai) [NIST SP 800-63B-4, OWASP Password Storage]
+
+Prioritas audit: P1.
 
 - Panjang minimal **15 karakter** kalau sandi satu-satunya faktor; minimal **8** kalau akun memakai 2FA.
   Panjang maksimal yang diterima minimal 64.
@@ -51,16 +55,22 @@ pengiriman email/OTP (`send-notifications`).
 
 ### 3. Tidak membocorkan keberadaan akun
 
+Prioritas audit: P1.
+
 - Login gagal: satu pesan untuk semua sebab ("Email atau sandi salah").
 - Daftar dan lupa sandi: "Kalau email ini terdaftar, kami sudah mengirim tautan." Waktu respons dibuat mirip.
 
 ### 4. Batas percobaan
+
+Prioritas audit: P1.
 
 - Rate limit login per IP **dan** per akun yang dicoba (`build-backend`).
 - Gagal beruntun → jeda makin lama, atau tantangan anti-bot. Batas mutlak NIST: maksimal 100 kegagalan beruntun
   sebelum akun dikunci dan perlu pemulihan.
 
 ### 5. Login lewat penyedia (OAuth 2.0 / OpenID Connect) [RFC 9700]
+
+Prioritas audit: P1.
 
 - Alur **Authorization Code + PKCE (S256)**, dengan `state` (cegah CSRF) dan `nonce` (cegah replay).
   Tidak memakai implicit flow.
@@ -72,6 +82,8 @@ pengiriman email/OTP (`send-notifications`).
 - Detail per penyedia: `references/google.md`, `references/telegram.md`.
 
 ### 6. Sesi [OWASP Session Management]
+
+Prioritas audit: P1.
 
 - Untuk web, pakai **sesi di server**: ID acak ≥128 bit, disimpan dalam bentuk hash di database/Redis,
   dikirim lewat cookie. Token tidak disimpan di `localStorage`.
@@ -91,17 +103,23 @@ pengiriman email/OTP (`send-notifications`).
 
 ### 7. CSRF [OWASP CSRF Prevention]
 
+Prioritas audit: P1.
+
 - `GET` tidak pernah mengubah data (`design-api`).
 - Request yang mengubah data dengan cookie: cookie `SameSite` **plus** cek header `Origin` cocok dengan daftar
   origin kita (atau token CSRF).
 
 ### 8. Reset sandi dan verifikasi email [OWASP Forgot Password]
 
+Prioritas audit: P1.
+
 - Token acak, sekali pakai, disimpan sebagai hash, berlaku singkat (mis. 30-60 menit).
 - Tautan memakai domain dari config, **bukan** dari header `Host` request.
 - Setelah sandi direset: semua sesi lama dihapus, user diberi tahu lewat email.
 
 ### 9. 2FA [RFC 6238, OWASP MFA]
+
+Prioritas audit: P1.
 
 - TOTP (aplikasi authenticator) atau passkey. **Wajib untuk admin.**
 - Saat mengaktifkan: berikan **kode cadangan** sekali tampil, disimpan sebagai hash, masing-masing sekali pakai.
@@ -110,10 +128,14 @@ pengiriman email/OTP (`send-notifications`).
 
 ### 10. Konfirmasi ulang (step-up)
 
+Prioritas audit: P1.
+
 Aksi sensitif meminta sandi/kode 2FA lagi meski sesi masih aktif: ganti email, ganti sandi, matikan 2FA,
 tarik/kirim uang, aksi admin berisiko.
 
 ### 11. Izin [OWASP Authorization]
+
+Prioritas audit: P1.
 
 - **Tolak secara bawaan**; izin dicek di **server** di setiap request.
 - Peran disimpan di database, tidak di data yang bisa diubah klien. Peran sedikit dan jelas
@@ -122,6 +144,8 @@ tarik/kirim uang, aksi admin berisiko.
 - Pengecekan di frontend (menyembunyikan menu) hanya untuk tampilan, bukan keamanan.
 
 ### 12. Kunci API untuk user/mesin
+
+Prioritas audit: P1; batas biaya per kunci: P2.
 
 Kalau proyek menerbitkan kunci API (untuk dipakai program, bukan browser):
 
@@ -139,6 +163,8 @@ Kalau proyek menerbitkan kunci API (untuk dipakai program, bukan browser):
 
 ### 13. JWT dan token mandiri [RFC 8725]
 
+Prioritas audit: P1.
+
 Untuk web, sesi di server lebih disarankan (aturan 6). Kalau JWT tetap dipakai (mis. antarlayanan):
 
 - Algoritma ditentukan server dari daftar tetap; token dengan `alg: none` atau algoritma lain ditolak.
@@ -150,6 +176,8 @@ Untuk web, sesi di server lebih disarankan (aturan 6). Kalau JWT tetap dipakai (
 - Pakai pustaka JWT yang teruji, tidak mem-parse/memverifikasi sendiri.
 
 ### 14. Catatan peristiwa
+
+Prioritas audit: P3.
 
 Dicatat (`build-backend`): login berhasil/gagal, logout, ganti sandi/email, aktif/nonaktif 2FA, reset sandi,
 perubahan peran. Ganti sandi/email/2FA juga diberitahukan ke user.

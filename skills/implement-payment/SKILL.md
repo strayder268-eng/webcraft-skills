@@ -3,7 +3,7 @@ name: implement-payment
 description: Skill ini membuat alur pembayaran dan saldo yang tidak bisa dicurangi - harga dihitung di server, invoice ke payment gateway, notifikasi/webhook bertanda tangan, cek status ke gateway, idempotency, status pembayaran satu arah, ledger saldo, transfer manual yang diverifikasi admin, refund, dan rekonsiliasi. Pakai saat menambah atau mengubah top-up, checkout, langganan, saldo/kredit, webhook pembayaran, refund, atau integrasi payment gateway (DOKU, Midtrans, Xendit, Stripe, dll.).
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -32,15 +32,21 @@ secara umum (`build-admin-panel`).
 
 ### 1. Data kartu tidak pernah menyentuh server kita
 
+Prioritas audit: P1.
+
 Pakai halaman bayar milik gateway (hosted checkout/redirect) atau komponen resmi mereka. Server tidak menerima,
 menyimpan, atau mencatat nomor kartu. Ini menjaga kewajiban PCI DSS tetap minimal. [PCI DSS]
 
 ### 2. Harga dihitung di server [OWASP Payment Gateway]
 
+Prioritas audit: P2.
+
 Klien hanya mengirim **apa** yang dibeli (ID paket, jumlah). Nominal, diskon, biaya, dan mata uang dihitung di
 server dari data di database. Nominal dari klien tidak pernah dipakai.
 
 ### 3. Status pembayaran satu arah
+
+Prioritas audit: P2.
 
 ```
 pending ──► paid
@@ -58,6 +64,8 @@ paid ──► refunded (sebagian / penuh)
 
 ### 4. Membuat pembayaran
 
+Prioritas audit: P2.
+
 1. Simpan baris pembayaran `pending` dengan ID unik milik kita, nominal, mata uang, user.
 2. Panggil API gateway dari server dengan ID itu sebagai nomor invoice/referensi dan kunci idempotency
    (`build-backend`: timeout, retry hanya kalau idempoten).
@@ -65,10 +73,14 @@ paid ──► refunded (sebagian / penuh)
 
 ### 5. Halaman kembali (return/redirect) tidak mengkreditkan
 
+Prioritas audit: P2.
+
 Parameter di URL kembali bisa dipalsukan. Halaman itu hanya **menampilkan status** dari database kita (dan
 boleh memicu cek status di server). Kredit hanya terjadi lewat aturan 6 atau 7.
 
 ### 6. Notifikasi dari gateway (webhook)
+
+Prioritas audit: P1 untuk verifikasi tanda tangan; P2 lainnya.
 
 - **Verifikasi tanda tangan** sesuai dokumentasi gateway, terhadap **body mentah** (sebelum di-parse), dengan
   perbandingan waktu-konstan. Gagal → 401, tidak diproses.
@@ -80,11 +92,15 @@ boleh memicu cek status di server). Kredit hanya terjadi lewat aturan 6 atau 7.
 
 ### 7. Cek status ke gateway
 
+Prioritas audit: P2.
+
 Selain menunggu webhook, server bisa menanyakan status ke API gateway (saat user kembali ke halaman, dan secara
 berkala untuk yang lama `pending`). Hasilnya diperlakukan seperti notifikasi: cocokkan jumlah/invoice, lalu
 perpindahan status atomik. [OWASP Payment Gateway]
 
 ### 8. Mengkreditkan saldo
+
+Prioritas audit: P2.
 
 Dalam **satu transaksi database**: ubah status `pending → paid` + tulis baris ledger (kunci idempotency =
 ID pembayaran) + perbarui saldo. Pola tabel: `change-database` (ledger). Saldo tidak pernah diubah tanpa baris
@@ -92,10 +108,14 @@ ledger.
 
 ### 9. Memakai saldo
 
+Prioritas audit: P2.
+
 Kurangi saldo secara atomik dengan syarat cukup (`… WHERE balance >= $1`), tulis ledger negatif di transaksi
 yang sama. Saldo tidak boleh negatif (constraint `CHECK`).
 
 ### 10. Transfer manual / QRIS statis
+
+Prioritas audit: P2.
 
 - User mengunggah bukti → status `pending_review`.
 - Admin memeriksa mutasi rekening, lalu menyetujui/menolak lewat panel (`build-admin-panel`) dengan
@@ -104,17 +124,23 @@ yang sama. Saldo tidak boleh negatif (constraint `CHECK`).
 
 ### 11. Refund dan koreksi
 
+Prioritas audit: P2.
+
 - Refund lewat API gateway, dicatat sebagai baris ledger negatif yang menunjuk pembayaran asal.
 - Koreksi saldo manual oleh admin: baris ledger jenis `adjustment` dengan alasan wajib dan audit log. Tidak ada
   edit langsung ke angka saldo.
 
 ### 12. Rekonsiliasi
 
+Prioritas audit: P2.
+
 - Harian: bandingkan pembayaran `paid` di database dengan laporan transaksi gateway.
 - Berkala: jumlah ledger per akun = saldo tersimpan.
 - Selisih dilaporkan ke admin, tidak diperbaiki otomatis.
 
 ### 13. Rahasia dan log
+
+Prioritas audit: P1.
 
 - Kunci API/secret gateway hanya di environment server; berbeda untuk sandbox dan produksi.
 - Log mencatat ID pembayaran, invoice, status, hasil verifikasi; **tidak** mencatat kunci, tanda tangan

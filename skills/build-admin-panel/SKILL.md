@@ -3,7 +3,7 @@ name: build-admin-panel
 description: Skill ini membangun panel admin yang aman dan bisa diaudit - area terpisah, peran dengan hak minimum, 2FA wajib, konfirmasi ulang untuk aksi sensitif, audit log yang tidak bisa diubah, aksi lewat aturan bisnis yang sama dengan user, persetujuan dua orang untuk aksi berisiko tinggi, dan perlindungan data pribadi. Pakai saat membuat atau mengubah halaman/endpoint admin, menambah peran admin, aksi admin atas uang/akun/pengaturan, atau melihat dan mengekspor data user.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -31,6 +31,8 @@ Halaman/endpoint admin, peran admin, aksi admin atas uang/akun/pengaturan, melih
 
 ### 1. Area terpisah
 
+Prioritas audit: P1.
+
 - Halaman admin di area sendiri (route `/admin` atau subdomain), endpoint admin di awalan sendiri
   (`/api/v1/admin/*`) yang dijaga satu middleware peran.
 - Sesi admin lebih ketat: cookie `SameSite=Strict`, batas total ≤ 24 jam dan tidak aktif ≤ 1 jam (NIST AAL2,
@@ -41,6 +43,8 @@ Halaman/endpoint admin, peran admin, aksi admin atas uang/akun/pengaturan, melih
 - Tampilan admin punya penanda jelas (warna aksen/label "ADMIN") supaya admin sadar sedang di area berisiko.
 
 ### 2. Peran dengan hak minimum [OWASP Authorization]
+
+Prioritas audit: P1.
 
 Wajib: hak dipisah sehingga satu akun admin yang dibobol **tidak bisa sekaligus** mengubah uang, mengubah
 peran, dan mengubah pengaturan teknis. Berapa peran dan namanya bebas.
@@ -64,17 +68,23 @@ Contoh bentuk (sesuaikan proyek):
 
 ### 3. 2FA dan konfirmasi ulang
 
+Prioritas audit: P1.
+
 - **2FA wajib** untuk setiap akun dengan peran admin. Belum aktif → dipaksa mendaftar sebelum bisa masuk panel.
 - Aksi sensitif meminta kode 2FA lagi (berlaku beberapa menit): ubah peran, ubah saldo, setujui/tolak
   pembayaran, refund, ubah harga/pengaturan uang/keamanan, ekspor data, hapus data.
 
 ### 4. Aksi lewat jalur yang sama
 
+Prioritas audit: P2.
+
 - Aksi admin memanggil **service yang sama** dengan aplikasi (validasi, ledger, status satu arah). Tidak ada
   endpoint "bypass" dan tidak ada edit langsung ke database produksi lewat konsol.
 - Ubah saldo = baris ledger `adjustment` dengan alasan wajib (`implement-payment`), bukan menimpa angka saldo.
 
 ### 5. Audit log [OWASP Logging]
+
+Prioritas audit: P2.
 
 Setiap aksi tulis admin mencatat:
 
@@ -103,6 +113,8 @@ Setiap aksi tulis admin mencatat:
 
 ### 6. Aksi berbahaya
 
+Prioritas audit: P2.
+
 - Dialog konfirmasi yang menyebut **akibat persisnya** ("Saldo user A berubah dari Rp 50.000 menjadi
   Rp 0").
 - Hapus permanen/aksi massal: ketik ulang nama/jumlah untuk konfirmasi, tampilkan pratinjau, batasi jumlah.
@@ -110,10 +122,14 @@ Setiap aksi tulis admin mencatat:
 
 ### 7. Persetujuan dua orang (opsional, ADR)
 
+Prioritas audit: P2.
+
 Untuk aksi berisiko sangat tinggi (koreksi saldo di atas batas tertentu, memberi peran `superadmin`): admin
 pertama mengajukan, admin **lain** menyetujui. Keduanya tercatat di audit log.
 
 ### 8. Data pribadi
+
+Prioritas audit: P1.
 
 - Tampilkan seperlunya; data sensitif disamarkan secara bawaan (`a***@gmail.com`).
 - Membuka data lengkap butuh alasan dan tercatat di audit log.
@@ -121,10 +137,14 @@ pertama mengajukan, admin **lain** menyetujui. Keduanya tercatat di audit log.
 
 ### 9. Masuk sebagai user (impersonation)
 
+Prioritas audit: P1.
+
 Hindari. Kalau benar-benar perlu: hanya baca, waktu terbatas, ada banner jelas selama mode itu, tercatat di
 audit log, dan tidak bisa melakukan aksi uang.
 
 ### 10. Pemantauan
+
+Prioritas audit: P3.
 
 Peringatan ke `superadmin` (`operate-app`) untuk pola aneh: banyak perubahan peran, koreksi saldo besar, login
 admin dari tempat baru, gagal 2FA berulang.

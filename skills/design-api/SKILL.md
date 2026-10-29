@@ -3,7 +3,7 @@ name: design-api
 description: Skill ini merancang dan menjaga kontrak API HTTP/JSON antara frontend dan backend - URL, method, status code, format error seragam (RFC 9457), validasi input, izin per endpoint, bentuk data uang/waktu/ID, pagination, idempotency, rate limit, kompatibilitas versi, serta SSE/WebSocket. Pakai saat menambah atau mengubah endpoint, mengubah bentuk request/response, memanggil API dari frontend, atau menyeragamkan pesan error.
 license: MIT
 metadata:
-  version: "0.4"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -33,10 +33,14 @@ login/sesi (`implement-auth`), webhook pembayaran (`implement-payment`).
 
 ### 1. Kontrak dulu
 
+Prioritas audit: P3.
+
 Sebelum ditulis kodenya, setiap endpoint punya kontrak di spek fitur: method, path, siapa yang boleh memanggil,
 request, response sukses, kemungkinan error.
 
 ### 2. URL
+
+Prioritas audit: P4.
 
 - Kata benda jamak, huruf kecil, kebab-case: `/api/v1/api-keys/{id}`.
 - Aksi yang bukan buat/baca/ubah/hapus: `POST /api/v1/orders/{id}/cancel`.
@@ -52,6 +56,8 @@ itu mengabaikan field yang tidak dikenalnya. Aturan keamanan (6, 7, 10, 11) teta
 
 ### 3. Method [RFC 9110]
 
+Prioritas audit: P3.
+
 | Method | Untuk | Sifat |
 |---|---|---|
 | `GET` | membaca | **aman**: tidak boleh mengubah data apa pun |
@@ -61,6 +67,8 @@ itu mengabaikan field yang tidak dikenalnya. Aturan keamanan (6, 7, 10, 11) teta
 | `DELETE` | menghapus | idempoten |
 
 ### 4. Status code
+
+Prioritas audit: P3.
 
 | Kode | Kapan |
 |---|---|
@@ -78,6 +86,8 @@ itu mengabaikan field yang tidak dikenalnya. Aturan keamanan (6, 7, 10, 11) teta
 | 502 / 503 | layanan luar gagal / sedang tidak tersedia |
 
 ### 5. Format error seragam [RFC 9457]
+
+Prioritas audit: P3; error yang membocorkan isi server: P1.
 
 Satu format error untuk semua endpoint. Proyek baru memakai RFC 9457
 (`Content-Type: application/problem+json`):
@@ -106,6 +116,8 @@ perubahan yang merusak (aturan 12): butuh ADR.
 
 ### 6. Validasi di server [OWASP Input Validation]
 
+Prioritas audit: P1.
+
 - Setiap input divalidasi **di server**: tipe, panjang, rentang, format, nilai yang diizinkan (allowlist).
   Validasi di frontend hanya untuk kenyamanan, bukan keamanan.
 - **Tolak field yang tidak dikenal**, dan jangan pernah memetakan body request langsung ke baris database.
@@ -114,12 +126,16 @@ perubahan yang merusak (aturan 12): butuh ADR.
 
 ### 7. Izin per endpoint [OWASP API Security Top 10]
 
+Prioritas audit: P1.
+
 - **Tolak secara bawaan.** Setiap endpoint menyatakan siapa yang boleh: publik, user login, admin.
 - **Cek kepemilikan objek** di setiap akses berdasarkan ID: `GET /api-keys/123` harus memastikan kunci 123
   milik pemanggil. Ini celah API nomor 1 (BOLA). [OWASP API1:2023]
 - Identitas pemanggil diambil dari sesi/token, **bukan** dari body atau query.
 
 ### 8. Bentuk data
+
+Prioritas audit: P2 untuk uang dan waktu; P4 untuk penamaan.
 
 | Jenis | Bentuk | Contoh |
 |---|---|---|
@@ -134,6 +150,8 @@ perubahan yang merusak (aturan 12): butuh ADR.
 
 ### 9. Daftar data
 
+Prioritas audit: P3; filter/urutan di luar daftar yang diizinkan: P1.
+
 - **Wajib pagination.** `limit` dengan nilai bawaan (mis. 20) dan batas maksimum (mis. 100).
 - Data yang terus bertambah tanpa batas (riwayat transaksi, log, feed) memakai **cursor**: response berisi
   `next_cursor`, kosong kalau habis. Offset besar makin lambat. [Use The Index, Luke: No offset]
@@ -146,6 +164,8 @@ perubahan yang merusak (aturan 12): butuh ADR.
 ```
 
 ### 10. Idempotency [IETF Idempotency-Key]
+
+Prioritas audit: P2.
 
 `POST` yang membuat transaksi uang, pesanan, atau mengirim pesan **wajib** menerima header `Idempotency-Key`
 (string acak dari pemanggil, mis. UUID). Tidak termasuk API yang **ditagih per pemakaian** dan mengikuti
@@ -165,10 +185,14 @@ Kunci punya masa berlaku (mis. 24 jam) yang ditulis di dokumentasi API. Cara men
 
 ### 11. Rate limit
 
+Prioritas audit: P1.
+
 Endpoint login, daftar, reset sandi, pembayaran, dan API publik diberi batas. Melebihi batas → 429 +
 `Retry-After`. Implementasi: `build-backend`.
 
 ### 12. Kompatibilitas
+
+Prioritas audit: P3.
 
 - **Aman:** menambah endpoint, menambah field response, menambah field request opsional.
 - **Merusak:** menghapus/mengganti nama field, mengubah tipe atau arti, menjadikan field wajib. Lakukan
@@ -177,9 +201,13 @@ Endpoint login, daftar, reset sandi, pembayaran, dan API publik diberi batas. Me
 
 ### 13. CORS
 
+Prioritas audit: P1.
+
 Hanya origin yang terdaftar. Tidak pernah `*` untuk endpoint yang memakai cookie/kredensial.
 
 ### 14. Koneksi panjang: SSE dan WebSocket [OWASP WebSocket Security]
+
+Prioritas audit: P1.
 
 - **SSE** (*Server-Sent Events*, mis. streaming jawaban AI) memakai aturan endpoint HTTP biasa: autentikasi,
   izin, rate limit. Stream dihentikan saat klien memutus koneksi, dan ada batas waktu/ukuran total.

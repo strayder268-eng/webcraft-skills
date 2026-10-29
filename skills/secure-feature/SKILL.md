@@ -3,7 +3,7 @@ name: secure-feature
 description: Skill ini memeriksa keamanan sebelum dan sesudah coding - threat model ringan (STRIDE), checklist OWASP Top 10:2025, header keamanan dan CSP, file dan path traversal, SSRF, injeksi selain SQL, bot dan penyalahgunaan, fitur AI/LLM, pemilihan library, pemindaian rahasia, serta perlindungan data pribadi (UU PDP). Pakai saat fitur menyentuh login, uang, data pribadi, file, admin, model AI, atau layanan pihak ketiga, saat menambah atau memperbarui library, saat ada dugaan celah, atau sebelum rilis.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -28,6 +28,8 @@ memeriksa, skill itu membangun.
 
 ### 1. Threat model ringan [OWASP Threat Modeling]
 
+Prioritas audit: P3.
+
 Jawab empat pertanyaan, hasilnya ditulis di bagian "Keamanan" spek fitur:
 
 1. **Apa yang dibangun?** Alur data fitur: dari mana masuk, lewat mana, disimpan di mana. Tandai **batas
@@ -51,6 +53,8 @@ Jawab empat pertanyaan, hasilnya ditulis di bagian "Keamanan" spek fitur:
 
 ### 2. Checklist OWASP Top 10:2025 [OWASP Top 10]
 
+Prioritas audit: ikuti prioritas aturan skill yang dirujuk; P1 kalau tidak ada skill rujukan.
+
 | Risiko | Cek | Skill terkait |
 |---|---|---|
 | A01 Broken Access Control | izin di server, cek pemilik objek, tolak bawaan | `design-api`, `implement-auth` |
@@ -65,6 +69,8 @@ Jawab empat pertanyaan, hasilnya ditulis di bagian "Keamanan" spek fitur:
 | A10 Mishandling of Exceptional Conditions | gagal tertutup, error tidak bocor, timeout | `build-backend` |
 
 ### 3. Header keamanan [OWASP HTTP Headers]
+
+Prioritas audit: P1.
 
 | Header | Nilai |
 |---|---|
@@ -85,6 +91,8 @@ Kalau dipasang di platform, catat di *Dikelola di luar repo* `docs/PROJECT.md`.
 
 ### 4. File: upload, unduh, arsip [OWASP File Upload]
 
+Prioritas audit: P1.
+
 - Daftar jenis yang diizinkan (ekstensi **dan** isi file dicek), batas ukuran.
 - Nama file diganti nama acak; tidak memakai nama/path dari user.
 - Disimpan di penyimpanan file terpisah, bukan di folder yang dijalankan server.
@@ -99,11 +107,15 @@ Kalau dipasang di platform, catat di *Dikelola di luar repo* `docs/PROJECT.md`.
 
 ### 5. Server mengambil URL dari user (SSRF) [OWASP SSRF]
 
+Prioritas audit: P1.
+
 Kalau server mengunduh/memanggil URL yang diberikan user (webhook user, pratinjau tautan, impor gambar):
 domain diizinkan lewat daftar, alamat IP internal/privat ditolak **setelah** DNS di-resolve dan di setiap
 redirect, batas waktu dan ukuran.
 
 ### 6. Injeksi selain SQL [OWASP XSS Prevention]
+
+Prioritas audit: P1.
 
 | Tempat | Aturan |
 |---|---|
@@ -118,6 +130,8 @@ redirect, batas waktu dan ukuran.
 
 ### 7. Bot dan penyalahgunaan [OWASP Automated Threats]
 
+Prioritas audit: P1; batas biaya per user/kunci: P2.
+
 - **Tantangan anti-bot** (mis. Turnstile/CAPTCHA) di daftar akun, lupa sandi, formulir publik, dan login
   setelah beberapa kali gagal. Token tantangan **diverifikasi di server**, bukan hanya di browser.
 - **Bonus/kredit gratis/trial:** satu per identitas terverifikasi (email terverifikasi, akun Telegram/Google),
@@ -130,6 +144,8 @@ redirect, batas waktu dan ukuran.
   [OWASP Abuse Case]
 
 ### 8. Fitur AI/LLM [OWASP Top 10 for LLM Applications 2025]
+
+Prioritas audit: P1.
 
 Berlaku kalau fitur memanggil model AI (chat, ringkasan, agen, RAG), termasuk aplikasi yang meneruskan
 permintaan ke penyedia model.
@@ -152,6 +168,8 @@ permintaan ke penyedia model.
 
 ### 9. Library [OWASP Vulnerable Dependency Management]
 
+Prioritas audit: P1.
+
 Sebelum menambah:
 
 - [ ] Benar-benar perlu? Bisa dengan fitur bawaan bahasa/framework?
@@ -166,12 +184,16 @@ kerentanan kritis ditambal secepatnya.
 
 ### 10. Rahasia
 
+Prioritas audit: P1.
+
 - Pemindai rahasia di CI (dan sebaiknya sebelum commit).
 - Rahasia yang pernah ter-commit atau terkirim di chat **dianggap bocor**: ganti (rotasi) di penyedianya.
   Menghapusnya dari git tidak cukup.
 - Rahasia berbeda untuk setiap lingkungan.
 
 ### 11. Data pribadi [UU PDP No. 27 Tahun 2022]
+
+Prioritas audit: P1 untuk kebocoran data pribadi; P2 untuk masa simpan dan penghapusan.
 
 - Kumpulkan **seperlunya**, dengan tujuan yang ditulis di kebijakan privasi.
 - Persetujuan terpisah untuk pemasaran.

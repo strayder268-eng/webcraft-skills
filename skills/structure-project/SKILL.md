@@ -3,7 +3,7 @@ name: structure-project
 description: Skill ini menentukan letak setiap file dan folder, batas antar modul, serta cara menyimpan config dan rahasia, supaya proyek tidak semrawut saat fitur bertambah. Pakai saat membuat struktur proyek baru, menambah file/komponen/modul dan bingung menaruhnya di mana, merapikan folder yang berantakan, memecah file yang terlalu besar, atau menambah environment variable dan rahasia.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -34,6 +34,8 @@ bertanya, dan menambah fitur tidak membuat folder makin berantakan.
 
 ### 1. Kelompokkan per fitur, bukan per jenis file
 
+Prioritas audit: P4.
+
 Semua bagian satu fitur (komponen, logika, pemanggil API, tipe) tinggal berdekatan di satu folder fitur.
 Struktur per jenis (`components/` raksasa, `hooks/` raksasa, `services/` raksasa) membuat satu fitur tersebar
 ke banyak folder dan susah dihapus atau diubah. [Next.js: Split project files by feature or route]
@@ -43,6 +45,8 @@ mencatatnya sebagai *utang* di *Konvensi*. Fitur baru tetap mengikuti susunan ya
 aturan 11) sampai pemindahan diputuskan.
 
 ### 2. Tiga tingkat penempatan
+
+Prioritas audit: P4.
 
 Berlaku untuk komponen UI, fungsi, tipe, apa pun:
 
@@ -64,6 +68,8 @@ ini terpenuhi dan namanya tercatat di *Konvensi* `docs/PROJECT.md`.
 
 ### 3. Arah ketergantungan satu arah
 
+Prioritas audit: P4; frontend tersambung langsung ke database: P1.
+
 - Fitur boleh memakai folder bersama. Folder bersama **tidak boleh** memakai fitur.
 - Fitur A tidak mengimpor isi dalam fitur B. Kalau A butuh sesuatu dari B, pindahkan bagian itu ke folder
   bersama, atau panggil lewat fungsi publik B yang memang disediakan.
@@ -71,10 +77,14 @@ ini terpenuhi dan namanya tercatat di *Konvensi* `docs/PROJECT.md`.
 
 ### 4. Halaman dan entry point tipis
 
+Prioritas audit: P4.
+
 File halaman (route) dan `main` hanya **merakit**: memanggil komponen/fungsi dari fitur. Logika tidak ditulis
 di sana. [Go: cmd/ hanya entry point; keputusan webcraft untuk halaman]
 
 ### 5. Ukuran file
+
+Prioritas audit: P4.
 
 Patokan: file di atas ±300 baris, atau komponen/fungsi yang mengerjakan lebih dari satu hal, dipecah.
 Ini patokan, bukan hukum; yang penting satu file satu tanggung jawab. File yang jauh di atas patokan
@@ -82,12 +92,16 @@ Ini patokan, bukan hukum; yang penting satu file satu tanggung jawab. File yang 
 
 ### 6. Nama
 
+Prioritas audit: P4.
+
 - Ikuti konvensi bahasa/framework (lihat `references/`).
 - Nama menjelaskan isi. **Dilarang** folder atau file keranjang sampah seperti `utils/`, `utils.ts`,
   `helpers/`, `common/`, `misc/` tanpa nama yang spesifik. Pakai nama yang jelas: `format-money.ts`, `internal/platform/db`.
   [Go blog: Package names]
 
 ### 7. Config dan rahasia
+
+Prioritas audit: P1 untuk rahasia di kode/repo atau terkirim ke browser; P4 untuk `.env.example` dan validasi saat start.
 
 - Semua yang berbeda antar tempat jalan (alamat database, kunci API, domain) dibaca dari **environment
   variable**, tidak ditulis di kode. [12-Factor: Config]
@@ -101,6 +115,8 @@ Ini patokan, bukan hukum; yang penting satu file satu tanggung jawab. File yang 
   [OWASP Secrets Management]
 
 ### 8. Struktur repo dengan frontend dan backend
+
+Prioritas audit: P4.
 
 Kalau satu repo berisi beberapa bagian, pisahkan di tingkat teratas:
 

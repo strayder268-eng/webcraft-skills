@@ -3,7 +3,7 @@ name: send-notifications
 description: Skill ini mengirim notifikasi yang andal dan tidak mengganggu lewat email, bot Telegram, dan notifikasi dalam aplikasi - lewat antrean, template terjemahan, pengaturan preferensi dan berhenti berlangganan, keterkiriman email (SPF, DKIM, DMARC), batas kirim, tautan aman, dan masa simpan. Pakai saat menambah email (verifikasi, reset sandi, struk, pengumuman), pesan bot Telegram, lonceng notifikasi di aplikasi, atau webhook bot Telegram.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -30,6 +30,8 @@ Email, pesan bot Telegram, notifikasi dalam aplikasi, webhook bot Telegram.
 
 ### 1. Jenis pesan
 
+Prioritas audit: P3.
+
 | Jenis | Contoh | Bisa dimatikan user? |
 |---|---|---|
 | Transaksional/keamanan | verifikasi email, reset sandi, struk, login baru, 2FA berubah | tidak |
@@ -40,6 +42,8 @@ Preferensi disimpan per user per jenis per kanal.
 
 ### 2. Selalu lewat antrean
 
+Prioritas audit: P2 untuk pesan keamanan dan uang (reset sandi, kode, kuitansi); P3 lainnya.
+
 - Pengiriman tidak pernah dilakukan langsung di dalam request atau transaksi. Peristiwa disimpan di outbox
   bersama perubahan datanya, lalu worker mengirim (`build-backend` aturan 6).
 - Setiap notifikasi punya kunci unik (mis. `receipt:payment:8412`) supaya tidak terkirim dua kali walau worker
@@ -47,6 +51,8 @@ Preferensi disimpan per user per jenis per kanal.
 - Gagal sementara → coba lagi dengan jeda; gagal permanen (alamat tidak ada, bot diblokir) → berhenti dan catat.
 
 ### 3. Isi pesan
+
+Prioritas audit: P1 untuk rahasia atau tautan sensitif di isi pesan; P3 lainnya.
 
 - Teks dari kamus terjemahan dengan bahasa user (`manage-translations`).
 - **Tidak pernah** berisi sandi, kunci API lengkap, atau data pribadi yang tidak perlu.
@@ -56,6 +62,8 @@ Preferensi disimpan per user per jenis per kanal.
 - Pesan keamanan menyertakan apa yang terjadi, kapan, dan apa yang harus dilakukan kalau bukan user sendiri.
 
 ### 4. Email: keterkiriman [Google: Email sender guidelines]
+
+Prioritas audit: P3.
 
 - Kirim lewat penyedia email transaksional (layanan SMTP/API), bukan dari server aplikasi langsung.
 - Domain pengirim punya **SPF, DKIM (kunci ≥ 2048 bit), dan DMARC**, dengan domain `From:` selaras dengan SPF/DKIM.
@@ -69,6 +77,8 @@ Preferensi disimpan per user per jenis per kanal.
 
 ### 5. Telegram bot [Telegram Bot API]
 
+Prioritas audit: P1 untuk secret token webhook; P3 lainnya.
+
 - Bot hanya bisa mengirim ke user yang sudah memulai bot atau memberi izin (mis. scope
   `telegram:bot_access` saat login). Simpan `chat_id` per user.
 - Token bot adalah rahasia server.
@@ -80,12 +90,16 @@ Preferensi disimpan per user per jenis per kanal.
 
 ### 6. Notifikasi dalam aplikasi
 
+Prioritas audit: P3.
+
 - Tabel notifikasi: user, jenis, isi (kunci kamus + data), `read_at`, `created_at`.
 - Daftar dengan pagination; tandai dibaca satu/semua.
 - Masa simpan (mis. 90 hari) dan penghapusan terjadwal (`change-database`).
 - User hanya bisa membaca notifikasinya sendiri (`design-api` aturan 7).
 
 ### 7. Batas dan biaya
+
+Prioritas audit: P3.
 
 - Batas kirim per user per jenis (mis. maksimal 1 email "saldo menipis" per hari).
 - Fitur yang memicu pesan dari input orang lain (undangan, kirim ulang kode) diberi rate limit supaya tidak

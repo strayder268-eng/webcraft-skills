@@ -3,7 +3,7 @@ name: change-database
 description: Skill ini merancang dan mengubah database relasional dengan aman dan efisien - desain tabel, tipe data (uang, waktu, ID), constraint, index, query, transaksi, ledger saldo, migrasi tanpa downtime, masa simpan data, dan hak akses. Pakai saat menambah atau mengubah tabel/kolom/index, menulis migrasi, menulis query, menyimpan uang atau saldo, menyimpan token/kunci/rahasia, query terasa lambat, atau tabel terus membesar.
 license: MIT
 metadata:
-  version: "0.4"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -34,12 +34,16 @@ JSON API (`design-api`).
 
 ### 1. Desain tabel
 
+Prioritas audit: P4.
+
 - Satu tabel untuk satu jenis hal. Nama `snake_case`, jamak: `users`, `api_keys`. [keputusan webcraft]
 - Setiap tabel punya primary key dan `created_at`; tabel yang barisnya diubah juga punya `updated_at`.
 - Kolom penghubung bernama `<tunggal>_id` (`user_id`) dan **selalu** diberi foreign key.
 - Huruf kecil saja untuk nama tabel/kolom. [PostgreSQL: Don't Do This]
 
 ### 2. Tipe data
+
+Prioritas audit: P2 untuk uang dan waktu; P4 untuk lainnya.
 
 | Data | Pakai | Jangan |
 |---|---|---|
@@ -53,6 +57,8 @@ JSON API (`design-api`).
 
 ### 3. Database menjaga aturannya sendiri [PostgreSQL: Constraints]
 
+Prioritas audit: P2.
+
 - `NOT NULL` sebagai bawaan; boleh kosong hanya kalau memang bermakna "tidak ada".
 - `UNIQUE` untuk yang tidak boleh kembar (email, kunci idempotency).
 - `CHECK` untuk nilai yang harus masuk akal (`amount > 0`, `balance >= 0`).
@@ -62,6 +68,8 @@ JSON API (`design-api`).
 
 ### 4. Index
 
+Prioritas audit: P3.
+
 - Index dibuat untuk query yang **benar-benar ada**: kolom di `WHERE`, `JOIN`, `ORDER BY`.
 - Kolom foreign key diberi index; PostgreSQL tidak membuatnya otomatis. [PostgreSQL: Constraints]
 - Index gabungan: urutan kolom mengikuti cara query memfilter.
@@ -69,6 +77,8 @@ JSON API (`design-api`).
 - Ragu? Buktikan dengan `EXPLAIN ANALYZE`. [PostgreSQL: Using EXPLAIN]
 
 ### 5. Query
+
+Prioritas audit: P1.
 
 - **Selalu parameter** (`$1`, `$2`), tidak pernah menyambung string dari input. [OWASP SQL Injection Prevention]
 - **Mencegah SQL injection sampai tuntas:**
@@ -92,6 +102,8 @@ JSON API (`design-api`).
 
 ### 6. Transaksi
 
+Prioritas audit: P2.
+
 - Perubahan yang harus terjadi bersama (kurangi saldo + catat transaksi) ada dalam **satu transaksi**.
 - Transaksi dibuat **pendek**. Tidak ada panggilan ke layanan luar (HTTP, email) di dalam transaksi.
 - Angka yang diubah banyak request (saldo, stok): ubah secara atomik di database
@@ -100,6 +112,8 @@ JSON API (`design-api`).
 
 ### 7. Uang dan saldo
 
+Prioritas audit: P2.
+
 - Setiap mutasi uang dicatat sebagai **baris baru** di tabel ledger yang tidak pernah diubah atau dihapus.
 - Saldo yang disimpan (kalau ada) diperbarui di transaksi yang sama dengan baris ledger, dan selalu bisa
   dihitung ulang dari ledger.
@@ -107,6 +121,8 @@ JSON API (`design-api`).
   tercatat dua kali. Detail alur: `implement-payment`.
 
 ### 8. Migrasi
+
+Prioritas audit: P2.
 
 - Semua perubahan struktur lewat **file migrasi bernomor** di repo. Tidak ada perubahan manual di database.
 - Migrasi yang sudah pernah dijalankan di mana pun **tidak diedit**; perbaikan = migrasi baru.
@@ -152,10 +168,14 @@ Jalur pindah ke migrasi bernomor (satu tugas sendiri, dengan backup dan izin use
 
 ### 9. Data yang terus bertambah
 
+Prioritas audit: P3; data uang/audit yang ikut terhapus: P2.
+
 - Log, riwayat, notifikasi, sesi: tentukan **masa simpan** dan jadwal penghapusan/arsip sejak awal.
 - File dan gambar disimpan di penyimpanan file, bukan di database; database hanya menyimpan alamatnya.
 
 ### 10. Akses dan koneksi
+
+Prioritas audit: P1.
 
 - Hanya backend yang tersambung ke database; port database tidak dibuka ke internet.
 - User database aplikasi **bukan** superuser; hanya hak yang dibutuhkan.
@@ -163,6 +183,8 @@ Jalur pindah ke migrasi bernomor (satu tugas sendiri, dengan backup dan izin use
 - Data pribadi disimpan seperlunya. Sandi tidak pernah disimpan apa adanya (`implement-auth`).
 
 ### 11. Data rahasia di database [OWASP Cryptographic Storage]
+
+Prioritas audit: P1.
 
 Pilih cara menyimpan berdasarkan perlu-tidaknya nilai asli dibaca lagi:
 

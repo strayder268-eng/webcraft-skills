@@ -19,6 +19,7 @@ Aturan menulis skill (hapus komentar ini di skill jadi):
 - Wajib vs contoh: isi "Aturan wajib" dan "Larangan" adalah prinsip yang berlaku di semua proyek. Nama
   folder/file, format, atau alat tertentu ditulis di baris "Contoh bentuk:" supaya jelas boleh diganti.
   Kalau satu hal memang harus persis begitu (mis. algoritma hash), tulis di aturan, bukan di contoh.
+- Setiap aturan bernomor punya baris "Prioritas audit" (dipakai `start-project` mode B).
 -->
 
 # Judul skill
@@ -47,7 +48,11 @@ Yang harus dibaca dari repo proyek sebelum mulai. Kalau tidak ada, **tanya user*
 
 ## Aturan wajib
 
-- Aturan yang tidak boleh dilanggar. [sumber]
+### 1. Nama aturan [sumber]
+
+Prioritas audit: P1/P2/P3/P4 (boleh per butir: "P1 untuk …; P3 lainnya").
+
+- Butir aturan yang tidak boleh dilanggar.
 
 Contoh bentuk: cara/nama yang sudah diuji; proyek boleh memakai bentuk lain yang memenuhi aturan di atas.
 

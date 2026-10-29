@@ -3,7 +3,7 @@ name: start-project
 description: Skill ini memulai proyek web dari nol (wawancara kebutuhan, memilih stack, membuat struktur dan file proyek, menyambungkan frontend-API-database pertama kali) atau memasang webcraft-skills ke proyek yang sudah ada (membaca repo, menulis file proyek, mengaudit ketidaksesuaian). Pakai saat user bilang "bikin web/aplikasi baru", "mulai proyek", atau saat proyek belum punya docs/PROJECT.md.
 license: MIT
 metadata:
-  version: "0.4"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -142,6 +142,16 @@ sama mendapat hasil yang sama, audit dikerjakan **lengkap, bukan sampel**:
      pemeriksaan butir lain di aturan yang sama. Satu aturan bisa punya beberapa ID temuan.
    - **Status ✓ wajib menyebut buktinya** (file:baris yang menunjukkan aturan dipenuhi). ✓ tanpa bukti tidak
      sah. Kalau buktinya tidak ditemukan, statusnya bukan ✓.
+   - **Bukti semua jalur.** Butir yang berbunyi *semua/selalu/setiap/tidak pernah*, atau yang menuntut
+     sesuatu **tidak ada** (tidak ada rahasia di log, tidak ada `CASCADE` di ledger), dibuktikan dengan
+     **pencarian**, bukan satu contoh: tulis pola yang dicari, jumlah hasilnya, dan periksa **setiap** hasil.
+     Satu jalur yang benar tidak membuktikan semua jalur benar. Contoh:
+     - "pengiriman selalu lewat antrean": cari semua titik kirim (`grep -rn "Send\|send.*Email" gateway/`),
+       7 hasil, 6 lewat outbox, 1 langsung di `account.go:137` → T;
+     - "ledger tidak pernah dihapus": cari `ON DELETE` dan `DELETE FROM` pada tabel ledger, 2 hasil
+       `ON DELETE CASCADE` → T;
+     - "tidak ada data pribadi di log": cari `log.` + `email`/`ip`, 0 hasil → ✓ dengan pola dan hasilnya.
+   - Aturan yang sebagian butirnya sesuai: tulis `7 T(P2-02, P2-05) · ✓ butir lain: <bukti>`.
    - Aturan tanpa status = audit belum selesai.
 2. **Cek kebenaran sebelum menulis temuan.** Baca sumber sesuai urutan di `start-here` aturan 10. Hanya
    kode yang dipakai yang dinilai (lihat definisinya di aturan itu); kode mati dicatat P4. Kalau
@@ -158,7 +168,11 @@ sama mendapat hasil yang sama, audit dikerjakan **lengkap, bukan sampel**:
    | **P3** bug yang dirasakan pengguna | pengguna atau developer mendapat hasil salah, lambat, atau petunjuk salah | README salah port, teks tidak diterjemahkan, dokumen usang |
    | **P4** struktur dan kerapian | kode sulit dirawat, tapi belum salah | file 1.800 baris, `utils.ts`, nama modul lama |
 
-   Patokan supaya dua agent memberi prioritas yang sama:
+   **Prioritas temuan = baris "Prioritas audit" di bawah aturan yang dilanggar.** Baris itu menetapkan
+   prioritas bawaan setiap aturan (kadang berbeda per butir), supaya dua agent tidak menebak sendiri. Temuan
+   yang melanggar beberapa aturan memakai prioritas tertinggi di antaranya. Prioritas hanya boleh dinaikkan
+   atau diturunkan dengan alasan tertulis di kolom Risiko ("naik ke P1 karena endpoint ini publik"). Patokan di
+   bawah dipakai untuk aturan yang belum punya baris itu dan untuk menilai alasan naik/turun:
 
    - **P1** juga untuk semua yang **melemahkan pertahanan**, walau belum terbukti bisa dibobol: header
      keamanan tidak sampai ke browser, token/JWT tidak dicek algoritma atau penerbitnya, input tanpa batas
@@ -182,6 +196,18 @@ sama mendapat hasil yang sama, audit dikerjakan **lengkap, bukan sampel**:
    mengukurnya, bukan ditebak. Audit baca-saja dianggap **lengkap** kalau semua aturan sudah punya status,
    termasuk "perlu diukur".
 7. Tambahkan bagian *Yang sudah sesuai*, supaya laporan tidak hanya daftar kesalahan.
+8. **Dua putaran.** Satu kali audit oleh agent mana pun pasti melewatkan sebagian butir. Karena itu audit
+   dikerjakan dua kali secara terpisah, lalu digabung:
+   1. **Putaran 1:** audit lengkap (langkah 1-7) → `docs/audit-webcraft.md`, ditandai "Putaran 1".
+   2. **Putaran 2:** di **sesi agent baru** yang tidak membaca hasil putaran 1. Ulangi langkah 1-7 hanya untuk
+      aturan berprioritas bawaan **P1 dan P2**, dengan urutan skill **terbalik** → tulis
+      `docs/audit-webcraft-putaran2.md`. Baru setelah selesai, buka hasil putaran 1.
+   3. **Gabung** (oleh agent putaran 2): setiap temuan yang hanya ada di satu putaran **dicek ulang di kode**.
+      Nyata → masuk audit; tidak nyata → dicoret dengan alasan. Prioritas yang berbeda diselesaikan dengan baris
+      "Prioritas audit". Hasil akhirnya tetap di `docs/audit-webcraft.md`, dengan kolom *Putaran* (`1`, `2`,
+      `1+2`) dan bagian *Hasil penggabungan*.
+   4. Kalau sesi baru tidak bisa dibuat, putaran 2 dikerjakan di sesi yang sama dengan urutan terbalik dan
+      dicatat "putaran 2 di sesi yang sama" (kurang kuat, karena agent sudah melihat hasil putaran 1).
 
 ### 6. Laporan
 
@@ -209,7 +235,10 @@ Mode B:
   luar repo* terisi.
 - [ ] `docs/audit-webcraft.md` setiap temuan punya bukti file:baris; semua file `docs/` sudah diperiksa;
   yang butuh pengukuran ditandai "perlu diukur".
-- [ ] Setiap ✓ di daftar periksa punya bukti; tidak ada aturan tanpa status.
+- [ ] Setiap ✓ di daftar periksa punya bukti; butir *semua/tidak ada* dibuktikan dengan pencarian; tidak
+  ada aturan tanpa status.
+- [ ] Prioritas setiap temuan sama dengan baris "Prioritas audit", atau alasan naik/turun tertulis.
+- [ ] Dua putaran sudah digabung; temuan satu putaran sudah dicek ulang di kode.
 - [ ] Tidak ada perubahan kode.
 
 ## Aset

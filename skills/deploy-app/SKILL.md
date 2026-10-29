@@ -3,7 +3,7 @@ name: deploy-app
 description: Skill ini menjalankan aplikasi di server dengan aman dan bisa diulang - persiapan server (SSH, firewall, update), image Docker yang dibuat CI, Docker Compose produksi, HTTPS otomatis lewat reverse proxy, domain/DNS, CI/CD (test, build, push image), urutan deploy dengan migrasi dan health check, rollback, dan rahasia. Pakai saat menyiapkan server baru, menulis Dockerfile/compose, mengatur domain atau HTTPS, membuat atau mengubah workflow CI/CD, melakukan deploy, atau rollback.
 license: MIT
 metadata:
-  version: "0.4"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -30,6 +30,8 @@ Server baru, Dockerfile/compose, domain/HTTPS, CI/CD, deploy, rollback.
 
 ### 1. Build sekali, jalankan di mana saja [12-Factor: Build, release, run]
 
+Prioritas audit: P3.
+
 - Image dibuat **oleh CI** dari commit tertentu, diberi tag commit (`sha-1a2b3c4`), lalu disimpan di registry.
 - Server tidak membangun kode dan tidak menyimpan kode sumber; server hanya menarik image.
 - Image yang sama dipakai di staging dan produksi; yang berbeda hanya config (env).
@@ -39,12 +41,16 @@ Server baru, Dockerfile/compose, domain/HTTPS, CI/CD, deploy, rollback.
 
 ### 2. Server dasar
 
+Prioritas audit: P1.
+
 - SSH hanya dengan kunci, login root dengan sandi dimatikan, akses SSH dibatasi IP bila memungkinkan.
 - Firewall: yang terbuka ke publik hanya **443** (dan 80 kalau dibutuhkan untuk redirect/sertifikat).
   Database, Redis, panel internal **tidak pernah** terbuka ke internet.
 - Update keamanan otomatis; jam server sinkron (NTP).
 
 ### 3. Image Docker [Docker best practices, OWASP Docker Security]
+
+Prioritas audit: P1.
 
 - *Multi-stage build*: alat build tidak ikut ke image akhir.
 - Image dasar kecil dengan versi tertulis jelas (bukan `latest`).
@@ -56,12 +62,16 @@ Server baru, Dockerfile/compose, domain/HTTPS, CI/CD, deploy, rollback.
 
 ### 4. Compose produksi
 
+Prioritas audit: P1 untuk port database/cache terbuka dan rahasia; P3 lainnya.
+
 - Hanya reverse proxy yang mem-publish port. Layanan lain di jaringan internal.
 - Setiap layanan: `restart: unless-stopped`, health check, batas memori, rotasi log.
 - Rahasia dari file di server (Docker secrets / file `.env` ber-izin `600` di luar repo).
 - Data permanen (database, sertifikat) di volume bernama.
 
 ### 5. HTTPS dan reverse proxy
+
+Prioritas audit: P1.
 
 - Sertifikat otomatis (mis. Caddy dengan Let's Encrypt). HTTP dialihkan ke HTTPS.
 - `Strict-Transport-Security` dipasang (`secure-feature` aturan 3).
@@ -73,6 +83,8 @@ Server baru, Dockerfile/compose, domain/HTTPS, CI/CD, deploy, rollback.
   latensi.
 
 ### 6. CI/CD [GitHub Actions: Security hardening]
+
+Prioritas audit: P1.
 
 Setiap push/PR:
 
@@ -92,6 +104,8 @@ Keamanan workflow:
 
 ### 7. Urutan deploy
 
+Prioritas audit: P2.
+
 1. Pastikan CI hijau untuk commit yang akan di-deploy.
 2. **Backup database** (`operate-app`).
 3. Jalankan migrasi tahap *expand* (`change-database`); kode lama harus tetap jalan dengan skema baru.
@@ -105,10 +119,14 @@ Langkah *contract* (hapus kolom lama) baru dijalankan setelah versi baru stabil,
 
 ### 8. Lingkungan
 
+Prioritas audit: P3.
+
 - Minimal: lokal dan produksi. Staging disarankan begitu ada pembayaran atau user sungguhan.
 - Rahasia, database, dan kunci layanan luar (mode sandbox vs live) **berbeda** di setiap lingkungan.
 
 ### 9. Konfigurasi aman di produksi [OWASP ASVS V13]
+
+Prioritas audit: P1.
 
 - Mode produksi aktif (`NODE_ENV=production`, mode debug framework mati); halaman error tidak menampilkan
   stack trace.
@@ -122,6 +140,8 @@ Langkah *contract* (hapus kolom lama) baru dijalankan setelah versi baru stabil,
 
 ### 10. Koneksi antar layanan [OWASP ASVS V12]
 
+Prioritas audit: P1.
+
 - Satu server, satu jaringan Docker internal: koneksi ke database/Redis tanpa TLS dapat diterima karena tidak
   keluar dari mesin.
 - Begitu melewati jaringan lain (database terkelola, server terpisah, antar region): **wajib TLS dengan
@@ -130,6 +150,8 @@ Langkah *contract* (hapus kolom lama) baru dijalankan setelah versi baru stabil,
   (`InsecureSkipVerify`, `NODE_TLS_REJECT_UNAUTHORIZED=0`) dilarang di luar test lokal.
 
 ### 11. Efisiensi resource
+
+Prioritas audit: P3.
 
 - **Build cepat:** urutan layer dari yang jarang berubah ke yang sering berubah (salin file dependensi →
   instal → baru salin kode), cache build di CI, dan cache unduhan dependensi di dalam build

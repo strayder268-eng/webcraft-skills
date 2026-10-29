@@ -3,7 +3,7 @@ name: write-tests
 description: Skill ini menulis test yang benar-benar menjaga perilaku - pembagian unit, integrasi, dan end-to-end, apa yang wajib diuji (alur utama, error, izin, uang, bersamaan), test yang stabil dan tidak bergantung waktu/jaringan, data test yang bersih, penanganan test tidak stabil, dan menjalankannya di CI. Pakai saat menambah fitur, memperbaiki bug, mengubah kode yang belum punya test, menulis test database/API/UI/browser, atau saat test gagal acak.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -27,6 +27,8 @@ Setiap fitur baru (`build-feature`), setiap bug (`fix-bug`), sebelum merapikan k
 
 ### 1. Tiga tingkat [Fowler: Practical Test Pyramid]
 
+Prioritas audit: P4.
+
 | Tingkat | Menguji | Jumlah | Kecepatan |
 |---|---|---|---|
 | Unit | fungsi/aturan bisnis, tanpa jaringan dan database | banyak | milidetik |
@@ -42,6 +44,8 @@ kasus di aturan 2. Proyek yang belum punya test end-to-end sama sekali mencatatn
 alatnya butuh ADR (`CATALOG.md`).
 
 ### 2. Yang wajib diuji
+
+Prioritas audit: P2 kalau uang, saldo, atau izin tidak punya test; P4 lainnya.
 
 Untuk setiap fitur:
 
@@ -61,6 +65,8 @@ Untuk setiap bug: test yang mereproduksi bug, ditulis sebelum perbaikan (`fix-bu
 
 ### 3. Uji perilaku, bukan cara kerja dalam
 
+Prioritas audit: P4.
+
 - Test memeriksa hasil yang terlihat dari luar (response, data tersimpan, teks di layar), bukan fungsi privat
   atau urutan pemanggilan internal.
 - UI diuji seperti user memakainya: cari elemen lewat peran dan label ("tombol Simpan"), bukan class CSS.
@@ -69,6 +75,8 @@ Untuk setiap bug: test yang mereproduksi bug, ditulis sebelum perbaikan (`fix-bu
 - Pola isi: siapkan → jalankan → periksa.
 
 ### 4. Stabil (deterministik)
+
+Prioritas audit: P4.
 
 - **Tidak ada `sleep`** untuk menunggu. Tunggu kondisi yang jelas, atau kendalikan waktu (jam palsu yang
   disuntikkan).
@@ -81,6 +89,8 @@ Untuk setiap bug: test yang mereproduksi bug, ditulis sebelum perbaikan (`fix-bu
 
 ### 5. Data test
 
+Prioritas audit: P2 kalau test bisa berjalan ke database berisi data asli; P4 lainnya.
+
 - Database test **terpisah** (container sendiri). Tidak pernah menjalankan test ke database pengembangan yang
   berisi data, apalagi produksi.
 - Setiap test membuat datanya sendiri dan **membersihkannya** (rollback transaksi, atau hapus di akhir test).
@@ -89,11 +99,15 @@ Untuk setiap bug: test yang mereproduksi bug, ditulis sebelum perbaikan (`fix-bu
 
 ### 6. Test tidak stabil
 
+Prioritas audit: P4.
+
 Test yang kadang lulus kadang gagal adalah bug. Cari penyebabnya (waktu, urutan, data bersama, race), perbaiki.
 Kalau belum bisa, karantina dengan catatan dan batas waktu perbaikan. Tidak dihapus diam-diam dan tidak
 diakali dengan menaikkan timeout.
 
 ### 7. CI
+
+Prioritas audit: P3.
 
 - Semua test berjalan di setiap push/PR, bersama typecheck dan lint (`deploy-app`).
 - Test gagal = tidak boleh di-merge/deploy.

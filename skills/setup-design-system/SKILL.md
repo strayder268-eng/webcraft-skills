@@ -3,7 +3,7 @@ name: setup-design-system
 description: Skill ini menetapkan identitas visual proyek sebagai token desain (warna, font, ukuran teks, spasi, radius, bayangan, gerak, tema terang/gelap) di satu sumber, mencatatnya di docs/DESIGN.md, dan memasang pengecekan supaya UI hanya memakai token. Pakai saat memulai tampilan proyek, mengganti tema/warna/font/identitas, menambah mode gelap, atau saat tampilan tidak konsisten karena warna dan ukuran ditulis sembarangan.
 license: MIT
 metadata:
-  version: "0.2"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -32,6 +32,8 @@ mengganti warna/tema cukup di satu file, dan siapa pun yang menambah halaman oto
 
 ### 1. Tanya identitas
 
+Prioritas audit: P4.
+
 Satu pesan, bahasa sederhana, dengan rekomendasi:
 
 1. Kesan yang diinginkan (pilih 2-3 kata): tegas, teknis, ramah, mewah, ceria, tenang, …
@@ -41,6 +43,8 @@ Satu pesan, bahasa sederhana, dengan rekomendasi:
    angka teknis.)
 
 ### 2. Susun token dalam dua lapis [DTCG, Material 3: Color roles]
+
+Prioritas audit: P4.
 
 **Lapis 1, primitif:** palet mentah. Contoh: `brand-50 … brand-950`, `neutral-50 … neutral-950`, dan palet
 status. **Komponen tidak boleh memakai lapis ini langsung.**
@@ -64,6 +68,8 @@ Mode gelap = **nilai lapis 2 diganti**, nama tetap. Komponen tidak perlu berubah
 
 ### 3. Batasi pilihan
 
+Prioritas audit: P4.
+
 | Jenis | Aturan |
 |---|---|
 | Warna | satu aksen merek + netral + 4 warna status |
@@ -80,6 +86,8 @@ Nilai di luar skala tidak dipakai. Butuh nilai baru → tambah token, bukan menu
 
 ### 4. Kontras [WCAG 2.2]
 
+Prioritas audit: P3.
+
 Setiap pasangan teks/latar dan elemen UI dicek dengan alat pengukur kontras:
 
 - teks biasa: minimal **4.5 : 1** (SC 1.4.3);
@@ -91,12 +99,16 @@ Cek di mode terang **dan** gelap. Catat rasionya di `docs/DESIGN.md`.
 
 ### 5. Pasang di kode
 
+Prioritas audit: P4.
+
 - Token ditulis **sekali** di satu file (cara per stack di `references/`).
 - Matikan palet bawaan framework kalau bisa, supaya warna di luar token tidak tersedia sama sekali.
 - Pasang pengecekan otomatis (lint/skrip di CI) yang menolak warna hex/rgb langsung dan nilai sembarang di
   komponen.
 
 ### 6. Catat
+
+Prioritas audit: P4.
 
 - Isi `docs/DESIGN.md` dari `assets/DESIGN.md`. Kalau proyek sudah punya dokumen desain dengan nama lain
   (mis. `docs/DESIGN-SYSTEM.md`), **jangan membuat file kedua**: lengkapi file itu dengan bagian yang kurang

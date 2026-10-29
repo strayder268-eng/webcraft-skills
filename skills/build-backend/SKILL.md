@@ -3,7 +3,7 @@ name: build-backend
 description: Skill ini menulis logika server yang rapi dan tahan gangguan - pembagian lapisan, penanganan error, log terstruktur, batas waktu dan retry ke layanan luar, cache, pekerjaan latar/antrean, rate limit, penyimpanan kunci idempotency, health check, mati dengan rapi, dan mengukur serta memperbaiki performa. Pakai saat menulis atau mengubah logika backend, memanggil layanan luar, menambah cache atau Redis, membuat pekerjaan terjadwal/latar, menambah rate limit, menambah log, atau saat endpoint lambat/boros query.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -33,12 +33,16 @@ menjatuhkan aplikasi, dan resource server (memori, koneksi, CPU) tidak terbuang.
 
 ### 1. Lapisan
 
+Prioritas audit: P4.
+
 `handler` (HTTP masuk/keluar) → `service` (aturan bisnis) → `store` (database) / `client` (layanan luar).
 
 - Aturan bisnis hanya di `service`. Handler tidak berisi aturan; store tidak tahu soal HTTP.
 - Service bisa diuji tanpa HTTP dan tanpa layanan luar sungguhan (dependensi lewat interface/parameter).
 
 ### 2. Error
+
+Prioritas audit: P3; detail error sampai ke pemanggil: P1.
 
 - Error **tidak pernah diabaikan**. Setiap error ditangani atau diteruskan ke atas dengan konteks
   ("menyimpan api key: …").
@@ -48,6 +52,8 @@ menjatuhkan aplikasi, dan resource server (memori, koneksi, CPU) tidak terbuang.
 - Panic/crash di satu request tidak boleh mematikan server (middleware recover).
 
 ### 3. Log [OWASP Logging, 12-Factor: Logs]
+
+Prioritas audit: P1 untuk rahasia/data pribadi di log; P3 untuk format dan ID request.
 
 - Log terstruktur (JSON) ke **stdout**; penyimpanannya urusan infra (`operate-app`).
 - Setiap baris log request membawa **ID request** yang sama dengan yang tercatat di error.
@@ -59,6 +65,8 @@ menjatuhkan aplikasi, dan resource server (memori, koneksi, CPU) tidak terbuang.
 
 ### 4. Memanggil layanan luar [AWS: Timeouts, retries and backoff]
 
+Prioritas audit: P3.
+
 - **Selalu ada batas waktu.** Tidak ada panggilan jaringan tanpa timeout.
 - Retry hanya untuk kegagalan sementara (timeout, 429, 502/503) **dan** hanya untuk operasi yang aman
   diulang (baca, atau tulis dengan kunci idempotency).
@@ -67,6 +75,8 @@ menjatuhkan aplikasi, dan resource server (memori, koneksi, CPU) tidak terbuang.
 - Layanan luar mati → aplikasi tetap jalan dengan pesan yang jelas (503), tidak macet menunggu.
 
 ### 5. Cache
+
+Prioritas audit: P3.
 
 Pakai cache hanya kalau data **sering dibaca, jarang berubah, dan mahal diambil**. Kalau tidak, jangan.
 
@@ -79,6 +89,8 @@ Pakai cache hanya kalau data **sering dibaca, jarang berubah, dan mahal diambil*
   mati.
 
 ### 6. Pekerjaan latar dan antrean
+
+Prioritas audit: P2 kalau pekerjaan yang bisa hilang menyangkut uang atau pesan keamanan; P3 lainnya.
 
 Pakai kalau pekerjaan lama (kirim email, proses file, panggil API lambat) tidak boleh menahan response.
 
@@ -93,6 +105,8 @@ Pakai kalau pekerjaan lama (kirim email, proses file, panggil API lambat) tidak 
 
 ### 7. Rate limit
 
+Prioritas audit: P1.
+
 - Wajib di: login, daftar, reset sandi, kirim kode/OTP, pembayaran, API publik (`design-api`).
 - Kunci batas: per user kalau sudah login, per IP kalau belum; endpoint login juga per akun yang dicoba.
 - IP diambil dari header proxy **hanya** kalau request datang dari proxy yang dipercaya.
@@ -104,11 +118,15 @@ Pakai kalau pekerjaan lama (kirim email, proses file, panggil API lambat) tidak 
 
 ### 8. Kunci idempotency
 
+Prioritas audit: P2.
+
 Untuk endpoint di `design-api` aturan 10: simpan `(kunci, user, hash payload, status, response)` dengan masa
 berlaku. Penanda "sedang diproses" diambil secara atomik (constraint `UNIQUE` di database atau `SET NX` di
 Redis) supaya dua request bersamaan tidak sama-sama lolos.
 
 ### 9. Health check
+
+Prioritas audit: P3.
 
 - `GET /healthz` (*liveness*): proses hidup. Ringan, tanpa cek database.
 - `GET /readyz` (*readiness*): siap melayani; cek koneksi database/Redis dengan timeout pendek.
@@ -116,10 +134,14 @@ Redis) supaya dua request bersamaan tidak sama-sama lolos.
 
 ### 10. Mati dengan rapi
 
+Prioritas audit: P3.
+
 Saat menerima sinyal berhenti (deploy, restart): berhenti menerima request baru, selesaikan yang sedang
 berjalan dalam batas waktu, tutup koneksi database/Redis, lalu keluar.
 
 ### 11. Resource
+
+Prioritas audit: P1 untuk batas ukuran input; P3 lainnya.
 
 - Satu pool koneksi database dan satu klien HTTP per layanan luar, dipakai ulang; tidak membuat koneksi baru
   per request.
@@ -128,6 +150,8 @@ berjalan dalam batas waktu, tutup koneksi database/Redis, lalu keluar.
 - Ukuran input, hasil query, dan file dibatasi.
 
 ### 12. Performa
+
+Prioritas audit: P3.
 
 **Urutan kerja: ukur → temukan penyebab → perbaiki satu hal → ukur lagi.** Tidak ada optimasi berdasarkan
 tebakan. [Google SRE: Monitoring]

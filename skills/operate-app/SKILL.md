@@ -3,7 +3,7 @@ name: operate-app
 description: Skill ini menjaga aplikasi yang sudah berjalan - backup terenkripsi yang rutin diuji pulihkan, pemantauan uptime dan sumber daya, log dan peringatan yang berguna, penanganan insiden (termasuk kebocoran data), postmortem, runbook, serta perawatan rutin (update, rotasi rahasia, akses). Pakai saat menyiapkan atau memeriksa backup, memulihkan data, memasang pemantauan atau alert, server down atau lambat, disk penuh, sertifikat bermasalah, dugaan peretasan, atau menulis runbook.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -41,6 +41,8 @@ Backup dan pemulihan, pemantauan dan alert, gangguan/insiden, runbook, perawatan
 
 ### 1. Backup [Google SRE: Data integrity]
 
+Prioritas audit: P2.
+
 - Yang di-backup: database **dan** file unggahan (kalau file disimpan di dalam database, backup database
   sudah mencakupnya; ukurannya diawasi). Config/rahasia disimpan terpisah di pengelola sandi milik admin, tidak
   bersama backup.
@@ -57,6 +59,8 @@ Backup dan pemulihan, pemantauan dan alert, gangguan/insiden, runbook, perawatan
 - Butuh RPO beberapa menit: arsip WAL / point-in-time recovery, dicatat sebagai ADR.
 
 ### 2. Pemantauan
+
+Prioritas audit: P3.
 
 Dari **luar** server, setiap 1-5 menit. Pemantau yang berjalan di server yang sama boleh ada untuk detail,
 tapi tidak memenuhi aturan ini: kalau server mati, ia ikut mati dan tidak memberi tahu siapa pun.
@@ -79,10 +83,14 @@ Untuk API, empat sinyal utama [Google SRE: Monitoring]: **latensi**, **jumlah re
 
 ### 3. Log
 
+Prioritas audit: P1 untuk rahasia/data pribadi di log; P3 lainnya.
+
 - Log container dikumpulkan dengan rotasi/masa simpan (mis. 14-30 hari), bisa dicari berdasarkan ID request.
 - Log peristiwa keamanan dan audit admin disimpan lebih lama (`build-admin-panel`).
 
 ### 4. Alert
+
+Prioritas audit: P2 untuk alert backup; P3 lainnya.
 
 - Setiap alert **bisa ditindaklanjuti** dan menunjuk ke runbook-nya. Alert yang selalu diabaikan dihapus atau
   diperbaiki.
@@ -91,6 +99,8 @@ Untuk API, empat sinyal utama [Google SRE: Monitoring]: **latensi**, **jumlah re
   banjir.
 
 ### 5. Insiden
+
+Prioritas audit: P3.
 
 1. **Pastikan dan ukur:** apa yang rusak, siapa yang terdampak, sejak kapan.
 2. **Kabari:** pemilik/tim, dan user bila dampaknya terasa (halaman status/pengumuman).
@@ -106,6 +116,8 @@ Untuk API, empat sinyal utama [Google SRE: Monitoring]: **latensi**, **jumlah re
 
 ### 6. Runbook
 
+Prioritas audit: P4.
+
 Prosedur yang sering atau genting ditulis di `docs/runbooks/` dari `assets/runbook.md`, dan **sudah pernah
 dicoba**:
 
@@ -115,6 +127,8 @@ dicoba**:
 - disk penuh, sertifikat gagal diperbarui, container terus restart.
 
 ### 7. Perawatan rutin
+
+Prioritas audit: P3.
 
 | Kapan | Apa |
 |---|---|

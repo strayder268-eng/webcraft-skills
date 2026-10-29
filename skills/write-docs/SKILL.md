@@ -3,7 +3,7 @@ name: write-docs
 description: Skill ini menulis dan merawat dokumentasi yang selalu cocok dengan kode - README, ringkasan proyek, dokumentasi API (OpenAPI), changelog, panduan untuk pengguna, dan runbook - dengan pembagian jenis dokumen Diátaxis, bahasa sederhana, contoh yang benar-benar dijalankan, dan diperbarui di commit yang sama dengan kodenya. Pakai saat membuat atau mengubah README, menambah/mengubah endpoint API, merilis perubahan, menulis panduan pemakaian, atau saat dokumentasi sudah tidak sesuai kode.
 license: MIT
 metadata:
-  version: "0.4"
+  version: "0.5"
   language: id
   status: draf
 ---
@@ -24,6 +24,8 @@ README, dokumentasi API, changelog, panduan pengguna, runbook, dokumen yang usan
 
 ### 1. Empat jenis dokumen [Diátaxis]
 
+Prioritas audit: P4.
+
 Satu dokumen untuk satu kebutuhan; jangan dicampur.
 
 | Jenis | Pembaca butuh | Contoh |
@@ -34,6 +36,8 @@ Satu dokumen untuk satu kebutuhan; jangan dicampur.
 | **Penjelasan** | memahami alasan | ADR, "kenapa saldo memakai ledger" |
 
 ### 2. Letak dokumen
+
+Prioritas audit: P4.
 
 | Dokumen | Letak | Isi |
 |---|---|---|
@@ -50,6 +54,8 @@ Informasi ditulis **di satu tempat**; tempat lain menautkan, tidak menyalin.
 
 ### 3. Selalu cocok dengan kode
 
+Prioritas audit: P3; dokumen yang menyuruh hal berbahaya: P1.
+
 - Dokumen diperbarui **di commit yang sama** dengan perubahan kodenya.
 - Setiap perintah dan contoh di dokumen **sudah dijalankan** dan berhasil. README dicoba dari clone bersih.
 - Dokumen usang lebih berbahaya daripada tidak ada: perbarui atau hapus, jangan dibiarkan. Saat audit atau
@@ -61,6 +67,8 @@ Informasi ditulis **di satu tempat**; tempat lain menautkan, tidak menyalin.
 - Tidak ada rahasia: pakai contoh (`sk-…`, `<TOKEN>`), dan env cukup disebut namanya.
 
 ### 4. Dokumentasi API [OpenAPI 3.1]
+
+Prioritas audit: P3.
 
 - API untuk pihak luar didokumentasikan dalam file OpenAPI: setiap endpoint, cara autentikasi, skema
   request/response, **daftar `code` error**, contoh sukses dan gagal.
@@ -74,12 +82,16 @@ Informasi ditulis **di satu tempat**; tempat lain menautkan, tidak menyalin.
 
 ### 5. Changelog [Keep a Changelog]
 
+Prioritas audit: P4.
+
 - Untuk manusia, bukan salinan log git.
 - Bagian `Unreleased` di atas; setiap versi bertanggal.
 - Kelompok: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security` (boleh diterjemahkan, konsisten).
 - Yang dicatat: perubahan yang terasa oleh pemakai/pemakai API.
 
 ### 6. Gaya tulisan [Google developer documentation style guide]
+
+Prioritas audit: P4.
 
 - Kalimat pendek, bentuk aktif, langsung ke pembaca ("Jalankan …", bukan "Perintah berikut dapat dijalankan").
 - Istilah teknis dijelaskan sekali saat pertama muncul; pakai istilah yang sama di seluruh dokumen.
