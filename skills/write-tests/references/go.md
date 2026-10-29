@@ -115,6 +115,33 @@ DATABASE_URL=postgres://t:t@127.0.0.1:55432/t?sslmode=disable go test -race -cou
 docker rm -f test-pg
 ```
 
+Satu perintah untuk semuanya, mis. `scripts/test-db.sh` (dipakai manusia, agent, dan CI):
+
+```sh
+#!/usr/bin/env bash
+# Test dengan Postgres + Redis sekali pakai; tidak pernah menyentuh database dev/produksi.
+set -uo pipefail
+PG=app-test-pg; RD=app-test-redis
+cleanup() { docker rm -f "$PG" "$RD" >/dev/null 2>&1 || true; }
+trap cleanup EXIT
+cleanup
+docker run -d --name "$PG" -e POSTGRES_USER=t -e POSTGRES_PASSWORD=t -e POSTGRES_DB=t \
+  -p 127.0.0.1:55432:5432 postgres:16-alpine >/dev/null
+docker run -d --name "$RD" -p 127.0.0.1:56379:6379 redis:7-alpine >/dev/null
+# image Postgres restart sekali setelah inisialisasi: tunggu pesan siap yang KEDUA
+for _ in $(seq 1 60); do
+  [ "$(docker logs "$PG" 2>&1 | grep -c 'ready to accept connections')" -ge 2 ] && break; sleep 1
+done
+# muat skema/migrasi di sini (dua kali kalau file skema harus idempoten)
+export DATABASE_URL="postgres://t:t@127.0.0.1:55432/t?sslmode=disable" TEST_REDIS_ADDR=127.0.0.1:56379
+count() { docker exec "$PG" psql -qtA -U t -d t -c "SELECT count(*) FROM users"; }
+before=$(count)
+status=0
+for run in 1 2; do go test -race -count=1 "${@:-./...}" || status=1; done
+[ "$before" = "$(count)" ] || echo "PERINGATAN: data test tertinggal"
+exit $status
+```
+
 Di dalam test:
 
 ```go

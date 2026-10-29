@@ -3,7 +3,7 @@ name: change-database
 description: Skill ini merancang dan mengubah database relasional dengan aman dan efisien - desain tabel, tipe data (uang, waktu, ID), constraint, index, query, transaksi, ledger saldo, migrasi tanpa downtime, masa simpan data, dan hak akses. Pakai saat menambah atau mengubah tabel/kolom/index, menulis migrasi, menulis query, menyimpan uang atau saldo, menyimpan token/kunci/rahasia, query terasa lambat, atau tabel terus membesar.
 license: MIT
 metadata:
-  version: "0.5"
+  version: "0.8"
   language: id
   status: draf
 ---
@@ -148,6 +148,15 @@ pindah alat diputuskan (ADR):
 
 1. Perubahan baru **hanya ditambahkan di bawah**, idempoten (`IF NOT EXISTS`), dengan komentar tanggal dan
    fitur. Baris lama tidak diedit.
+
+   Satu pengecualian: constraint yang **didefinisikan ulang di file setiap kali jalan** (`DROP CONSTRAINT IF
+   EXISTS` lalu `ADD CONSTRAINT` di tengah file). Kalau hanya ditambah di bawah, definisi lama di tengah akan
+   menolak data baru pada deploy berikutnya dan file berhenti sebelum sampai ke bawah. Constraint seperti itu
+   **diperlebar di tempat**, dengan syarat:
+   - hanya memperlebar (nilai lama tetap diterima), tidak pernah mempersempit; mempersempit butuh cek data
+     dulu dan ADR;
+   - semua definisi constraint yang sama di file ikut diubah (cari namanya);
+   - komentar tanggal + alasan di atasnya, dan alasan ditulis di pesan commit.
 2. `DROP` dan ganti tipe tetap lewat expand → migrate → contract; tahap hapus baru ditulis setelah kode lama
    tidak lagi di produksi. Menghapus tabel/kolom milik fitur yang sudah dibuang hanya butuh tahap terakhir:
    kode berhenti memakainya dan sudah di-deploy, backup diambil, lalu `DROP` di perubahan berikutnya.

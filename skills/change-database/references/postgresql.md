@@ -127,6 +127,20 @@ EXECUTE format('SELECT count(*) FROM %I WHERE status = $1', tbl)
   USING wanted_status;
 ```
 
+## Satu parameter untuk dua tipe kolom
+
+Parameter yang sama dipakai untuk kolom berbeda tipe ditolak PostgreSQL:
+
+```sql
+-- user_id uuid, reference_id text
+INSERT INTO email_outbox(user_id, reference_id) VALUES ($1, $1);
+-- ERROR: inconsistent types deduced for parameter $1 (SQLSTATE 42P08)
+```
+
+Kirim sebagai dua parameter (`VALUES ($1, $2)` dengan nilai yang sama dua kali), atau tulis tipenya
+(`VALUES ($1::uuid, $1::text)`). Kesalahan ini hanya muncul di database asli, tidak tertangkap kompiler atau test
+tanpa database.
+
 ## Pencarian LIKE yang aman
 
 ```sql

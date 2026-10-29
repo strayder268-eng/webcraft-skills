@@ -3,7 +3,7 @@ name: fix-bug
 description: Skill ini memperbaiki bug sampai ke akar masalahnya (reproduksi, test yang gagal dulu, telusuri per lapisan, perbaikan minimal, cek dampak) dan merapikan kode tanpa mengubah perilaku (refactor). Pakai saat ada error, fitur tidak jalan, hasil salah, data tidak konsisten, test gagal atau tidak stabil, atau saat kode perlu dipecah/dirapikan tanpa menambah fitur.
 license: MIT
 metadata:
-  version: "0.7"
+  version: "0.8"
   language: id
   status: draf
 ---
@@ -112,6 +112,8 @@ Refactor = mengubah struktur kode **tanpa mengubah perilaku** yang terlihat dari
 - [ ] Ada test yang dulu gagal dan sekarang lulus.
 - [ ] Seluruh test lulus; hasil perintah dilampirkan di laporan, dengan test yang dilewati (skip) disebut
   terpisah beserta alasannya.
+- [ ] Test yang butuh database/Redis sudah dijalankan di database test sekali pakai. Kalau belum, tugas
+  dilaporkan "belum selesai", bukan "selesai".
 - [ ] Penyebab tertulis di commit dan laporan.
 - [ ] Mode rapikan: tidak ada test yang perlu diubah ekspektasinya.
 

@@ -3,7 +3,7 @@ name: write-tests
 description: Skill ini menulis test yang benar-benar menjaga perilaku - pembagian unit, integrasi, dan end-to-end, apa yang wajib diuji (alur utama, error, izin, uang, bersamaan), test yang stabil dan tidak bergantung waktu/jaringan, data test yang bersih, penanganan test tidak stabil, dan menjalankannya di CI. Pakai saat menambah fitur, memperbaiki bug, mengubah kode yang belum punya test, menulis test database/API/UI/browser, atau saat test gagal acak.
 license: MIT
 metadata:
-  version: "0.7"
+  version: "0.8"
   language: id
   status: draf
 ---
@@ -97,6 +97,10 @@ Prioritas audit: P2 kalau test bisa berjalan ke database berisi data asli; P4 la
 
 - Database test **terpisah** (container sendiri). Tidak pernah menjalankan test ke database pengembangan yang
   berisi data, apalagi produksi.
+- Proyek menyediakan **satu perintah** yang membuat database/Redis test sekali pakai, memuat skema, menjalankan
+  test, menghitung sisa data, lalu menghapus container (dicatat di `AGENTS.md`). Agent boleh menjalankan perintah
+  itu; dengan begitu test database bisa dijalankan sendiri sebelum melapor, bukan hanya di-skip. Contoh di
+  `references/go.md`.
 - Setiap test membuat datanya sendiri dan **membersihkannya** (rollback transaksi, atau hapus di akhir test).
 - Test yang berjalan paralel memakai data unik (ID/email unik per test) supaya tidak saling mengganggu.
 - Cek kebocoran data: jumlah baris tabel utama sebelum dan sesudah seluruh test harus sama.
@@ -124,6 +128,11 @@ Prioritas audit: P3.
 - Mock database sendiri.
 - Test yang memanggil API pihak ketiga sungguhan.
 - Data test tertinggal di database.
+- Test yang **membaca file kode sumber** lalu mencocokkan teks (`strings.Contains(source, "go func")`). Test
+  seperti itu menguji cara menulis, bukan perilaku, dan rusak saat kode dirapikan. Ganti dengan test perilaku.
+  Pemeriksaan isi file yang memang statis (Dockerfile punya `USER`, workflow CI dikunci SHA, skema memuat
+  constraint) ditaruh sebagai skrip cek atau lint di CI, atau dibuktikan dengan memuat skema ke database
+  test. Test lama yang sudah begitu dicatat sebagai *utang*.
 
 ## Cek hasil
 
@@ -131,7 +140,8 @@ Prioritas audit: P3.
 - [ ] Seluruh test lulus dua kali berturut-turut (cek stabil); untuk Go juga dengan `-race`.
 - [ ] Test yang dilewati (skip) **tidak** dihitung lulus. Laporan memisahkan lulus, gagal, dan skip beserta
   alasannya. Test yang di-skip karena butuh database/Redis wajib dijalankan di container test sebelum
-  merge, oleh agent atau orang yang punya akses.
+  merge, oleh agent atau orang yang punya akses. Sebelum itu, status tugas **belum selesai**: laporkan
+  "kode selesai, test database belum dijalankan".
 - [ ] Tidak ada data tersisa setelah test.
 - [ ] Perintah dan hasil test dilampirkan di laporan.
 

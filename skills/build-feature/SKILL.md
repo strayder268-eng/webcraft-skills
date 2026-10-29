@@ -3,7 +3,7 @@ name: build-feature
 description: Skill ini mengatur alur menambah atau mengubah fitur dari awal sampai selesai - rencana (spek fitur), catatan keputusan (ADR), urutan pengerjaan database ke API ke UI, test, review diri, cek nyata, commit, dan laporan. Pakai saat user minta fitur baru, halaman baru, perubahan alur, atau perubahan yang menyentuh lebih dari satu bagian web, juga saat perlu mencatat keputusan penting seperti menambah alat atau layanan baru.
 license: MIT
 metadata:
-  version: "0.6"
+  version: "0.8"
   language: id
   status: draf
 ---
@@ -147,6 +147,8 @@ Perbarui status fitur di `docs/features/README.md`.
 - [ ] Rencana disetujui user sebelum coding (fitur besar: file spek ada).
 - [ ] Keputusan penting punya ADR.
 - [ ] Test lulus; hasil perintahnya dilampirkan di laporan.
+- [ ] Test yang butuh database/Redis sudah dijalankan di database test sekali pakai. Kalau belum, tugas
+  dilaporkan "belum selesai", bukan "selesai".
 - [ ] Cek nyata dilakukan, atau alasan tidak bisa disebut di laporan.
 - [ ] `docs/features/README.md` diperbarui.
 
