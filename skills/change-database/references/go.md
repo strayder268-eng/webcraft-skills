@@ -37,6 +37,54 @@ Satu pool untuk seluruh aplikasi, dibuat di `main`, dioper ke setiap `store`.
 rows, err := pool.Query(ctx, `SELECT id, name FROM users WHERE id = ANY($1)`, ids) // ids []int64
 ```
 
+## Urutan dari input (allowlist)
+
+```go
+// kunci dari user → potongan SQL tetap; tidak ada teks user yang masuk ke SQL
+var sortColumns = map[string]string{
+    "created": "created_at",
+    "name":    "name",
+}
+
+func orderBy(sort, dir string) (string, error) {
+    col, ok := sortColumns[sort]
+    if !ok {
+        return "", ErrInvalidSort // → 422
+    }
+    d := "ASC"
+    if dir == "desc" {
+        d = "DESC"
+    }
+    return " ORDER BY " + col + " " + d + ", id " + d, nil
+}
+```
+
+## Pencarian LIKE
+
+```go
+var likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
+
+q := strings.TrimSpace(input)
+if len(q) > 100 {
+    return ErrSearchTooLong // → 422
+}
+rows, err := pool.Query(ctx,
+    `SELECT id, name FROM products WHERE name ILIKE '%' || $1 || '%' ESCAPE '\' LIMIT 50`,
+    likeEscaper.Replace(q))
+```
+
+## Pengecekan otomatis
+
+[gosec](https://github.com/securego/gosec) di CI, minimal aturan **G201** (SQL disusun dengan format string)
+dan **G202** (SQL disusun dengan penyambungan string):
+
+```sh
+go run github.com/securego/gosec/v2/cmd/gosec@<versi> -include=G201,G202 ./...
+```
+
+Potongan SQL tetap dari allowlist seperti `orderBy` di atas bisa ikut ditandai; beri komentar `// #nosec G202`
+**beserta alasannya** di baris itu saja, jangan mematikan aturannya.
+
 ## Transaksi
 
 ```go
@@ -92,3 +140,4 @@ menjatuhkan aplikasi.
 - [pgx v5](https://pkg.go.dev/github.com/jackc/pgx/v5) dan [pgxpool](https://pkg.go.dev/github.com/jackc/pgx/v5/pgxpool).
 - [PostgreSQL: Error Codes](https://www.postgresql.org/docs/current/errcodes-appendix.html).
 - [goose](https://github.com/pressly/goose).
+- [gosec](https://github.com/securego/gosec): aturan G201, G202.

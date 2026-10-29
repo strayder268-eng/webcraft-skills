@@ -116,6 +116,26 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app_user;
 ALTER ROLE app_user SET statement_timeout = '10s';
 ```
 
+## SQL dinamis di dalam fungsi database
+
+Kalau fungsi PL/pgSQL harus menyusun SQL sendiri, nama dimasukkan lewat `format('%I')` dan nilai lewat
+`USING` (atau `%L`), tidak pernah dengan `||`:
+
+```sql
+EXECUTE format('SELECT count(*) FROM %I WHERE status = $1', tbl)
+  INTO n
+  USING wanted_status;
+```
+
+## Pencarian LIKE yang aman
+
+```sql
+-- $1 sudah di-escape aplikasi: \ → \\, % → \%, _ → \_
+SELECT id, name FROM products
+WHERE name ILIKE '%' || $1 || '%' ESCAPE '\'
+LIMIT 50;
+```
+
 ## Membaca rencana query
 
 ```sql
@@ -128,6 +148,8 @@ Tanda bahaya: `Seq Scan` pada tabel besar untuk query yang sering dipanggil, est
 
 - [PostgreSQL: ALTER TABLE](https://www.postgresql.org/docs/current/sql-altertable.html): `NOT VALID`, `SET NOT NULL`, default kolom.
 - [PostgreSQL: CREATE INDEX (CONCURRENTLY)](https://www.postgresql.org/docs/current/sql-createindex.html).
+- [PostgreSQL: PL/pgSQL dynamic commands (format, USING)](https://www.postgresql.org/docs/current/plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN)
+- [PostgreSQL: Pattern matching (LIKE, ESCAPE)](https://www.postgresql.org/docs/current/functions-matching.html)
 - [PostgreSQL: Table Partitioning](https://www.postgresql.org/docs/current/ddl-partitioning.html).
 - [PostgreSQL: UUID Functions](https://www.postgresql.org/docs/current/functions-uuid.html).
 - [PostgreSQL: Client Connection Defaults](https://www.postgresql.org/docs/current/runtime-config-client.html): `lock_timeout`, `statement_timeout`.

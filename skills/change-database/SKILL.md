@@ -70,7 +70,20 @@ JSON API (`design-api`).
 
 ### 5. Query
 
-- **Selalu parameter**, tidak pernah menyambung string dari input. [OWASP SQL Injection Prevention]
+- **Selalu parameter** (`$1`, `$2`), tidak pernah menyambung string dari input. [OWASP SQL Injection Prevention]
+- **Mencegah SQL injection sampai tuntas:**
+  1. **Bagian yang tidak bisa jadi parameter** (nama kolom untuk `ORDER BY`, arah `ASC`/`DESC`, nama tabel):
+     input user hanya dipakai sebagai **kunci** untuk memilih potongan SQL tetap dari daftar yang diizinkan.
+     Nilai di luar daftar → 422. Input tidak pernah ditempel ke SQL.
+  2. **Pencarian `LIKE`/`ILIKE`:** karakter `%`, `_`, dan `\` dari input di-escape, nilainya tetap lewat
+     parameter, dan panjangnya dibatasi. Tanpa escape, user bisa memaksa pencarian yang memindai seluruh tabel.
+  3. **Data dari database sendiri juga input.** Nilai yang pernah disimpan user lalu dibaca lagi tetap lewat
+     parameter (*second-order injection*). SQL dinamis di dalam fungsi database memakai `format()` dengan `%I`
+     (nama) / `%L` (nilai), atau `EXECUTE … USING`.
+  4. **Dicek otomatis:** linter keamanan di CI menolak SQL yang disusun dengan format string atau
+     penyambungan (cara per bahasa ada di `references/`).
+  Lapisan cadangan: user database aplikasi berhak minimum (aturan 10), dan error tidak membocorkan SQL
+  (`design-api` aturan 5).
 - Ambil kolom yang dibutuhkan saja, bukan `SELECT *`.
 - **Tidak ada query di dalam perulangan** (N+1). Ambil sekaligus dengan `JOIN` atau `WHERE id = ANY($1)`.
 - Daftar selalu dibatasi (`LIMIT`); data besar memakai keyset/cursor, bukan `OFFSET` besar. [Use The Index, Luke]

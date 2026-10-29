@@ -76,6 +76,45 @@ email := fmt.Sprintf("u-%d@test.local", time.Now().UnixNano())
 t.Cleanup(func() { pool.Exec(context.Background(), `DELETE FROM users WHERE email = $1`, email) })
 ```
 
+## Input berbahaya (SQL injection)
+
+```go
+func TestSearchTreatsInputAsText(t *testing.T) {
+    pool := testDB(t)
+    // data milik test ini saja
+    seed(t, pool, "Kopi Arabika", "Teh 100% Melati", "Gula_Aren")
+    before := countRows(t, pool, "products")
+
+    cases := []struct {
+        q    string
+        want []string
+    }{
+        {"' OR '1'='1", nil},                  // bukan "semua baris"
+        {"'; DROP TABLE products; --", nil},
+        {"%", []string{"Teh 100% Melati"}},     // % dicari sebagai huruf, bukan wildcard
+        {"_", []string{"Gula_Aren"}},
+        {`\`, nil},
+    }
+    for _, tc := range cases {
+        t.Run(tc.q, func(t *testing.T) {
+            got, err := store.Search(ctx, tc.q)
+            if err != nil { t.Fatal(err) }
+            if !reflect.DeepEqual(names(got), tc.want) { t.Fatalf("got %v, want %v", names(got), tc.want) }
+        })
+    }
+    if after := countRows(t, pool, "products"); after != before {
+        t.Fatalf("jumlah baris berubah: %d → %d", before, after)
+    }
+}
+
+func TestListRejectsUnknownSort(t *testing.T) {
+    for _, s := range []string{"name; DROP TABLE users", "password_hash", "1"} {
+        rec := get(t, "/api/v1/products?sort="+url.QueryEscape(s))
+        if rec.Code != http.StatusUnprocessableEntity { t.Fatalf("sort=%q: status %d, want 422", s, rec.Code) }
+    }
+}
+```
+
 ## Bersamaan
 
 ```go

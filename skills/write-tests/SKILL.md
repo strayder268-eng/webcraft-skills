@@ -44,6 +44,10 @@ Untuk setiap fitur:
 - input tidak valid (422) dan batasnya (nol, negatif, terlalu panjang, kosong);
 - tanpa login (401) dan **milik orang lain** (404/403);
 - kegagalan layanan luar (timeout, error) ditangani;
+- **input berbahaya** di setiap parameter teks yang sampai ke query (isian, pencarian, filter, urutan):
+  `' OR '1'='1`, `'; DROP TABLE users; --`, `%`, `_`, `\`. Hasil yang benar: 422 untuk nilai yang tidak
+  diizinkan, atau diperlakukan sebagai teks biasa. Setelah test, tabel dan jumlah barisnya tidak berubah;
+- **urutan/filter di luar daftar yang diizinkan** ditolak 422, bukan diabaikan diam-diam;
 - uang/saldo/kuota: request **bersamaan** dan request **diulang** (idempotency) tidak membuat hitungan salah.
 
 Untuk setiap bug: test yang mereproduksi bug, ditulis sebelum perbaikan (`fix-bug`).
