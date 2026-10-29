@@ -3,7 +3,7 @@ name: start-here
 description: Skill ini adalah pintu masuk webcraft-skills. Isinya peta bagian web (frontend, API, backend, database, infra), letak file proyek, aturan kerja umum, dan cara memilih skill yang tepat. Pakai saat permintaan user masih umum atau berbahasa awam ("bikin web", "tambah login", "webnya error", "mau deploy"), saat belum jelas skill mana yang cocok, atau saat mulai bekerja di proyek yang memakai webcraft-skills.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.4"
   language: id
   status: draf
 ---
@@ -100,7 +100,9 @@ Satu permintaan bisa menyentuh beberapa skill. Pakai `build-feature` sebagai pen
    "Contoh bentuk:" dan isi `references/` boleh diganti bentuk lain yang tercatat di bagian *Konvensi*
    `docs/PROJECT.md`. Bentuk proyek yang berbeda dari contoh **bukan** pelanggaran selama aturannya terpenuhi.
 10. **Kalau sumber bertentangan**, percayai dengan urutan ini:
-    1. kode yang dipakai (bukan kode mati);
+    1. kode yang dipakai: bisa dicapai dari entry point (`main`, pendaftaran route, file halaman) dan
+       bagiannya ikut dibangun/dijalankan menurut config deploy. Kode yang tidak dipanggil dari mana pun adalah
+       kode mati;
     2. config produksi di repo (compose produksi, config reverse proxy, workflow CI/deploy);
     3. dokumen keputusan (ADR, spek yang mencatat keputusan) — menjelaskan **maksud**, bukan menggantikan kode;
     4. dokumen deploy/operasional terbaru;

@@ -3,7 +3,7 @@ name: build-ui
 description: Skill ini membuat komponen, halaman, dan form yang konsisten dengan sistem desain - pemakaian ulang komponen dasar, varian lewat props, keadaan memuat/kosong/error, form yang benar, aksesibilitas (WCAG 2.2 AA), responsif, performa (Core Web Vitals), dan SEO. Pakai saat membuat atau mengubah komponen UI, halaman, form, tabel/daftar, dialog, atau saat tampilan berantakan, lambat, tidak rapi di HP, atau sulit dipakai dengan keyboard.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.4"
   language: id
   status: draf
 ---
@@ -42,7 +42,8 @@ keyboard dan pembaca layar), enak di HP, dan cepat dibuka.
 - Elemen HTML interaktif mentah (`<button>`, `<input>`, `<select>`) **hanya** dipakai di dalam komponen dasar.
   Halaman dan fitur memakai komponen dasar. Di proyek lama, halaman yang masih memakai elemen mentah adalah
   *utang*: kode **baru** wajib memakai komponen dasar; halaman lama dipindah saat halaman itu disentuh atau
-  lewat tugas rapi-rapi tersendiri.
+  lewat tugas rapi-rapi tersendiri. "Disentuh" berarti bagian yang diubah: menambah satu field di halaman lama
+  cukup memakai komponen dasar untuk field itu, tanpa merombak seluruh halaman di tugas yang sama.
 - **Hanya token semantik** untuk warna, ukuran, jarak (`setup-design-system`).
 - Komponen dasar tidak mengambil data dan tidak berisi teks bisnis; teks datang lewat props.
 - Komponen baru dasar dicatat di tabel komponen `docs/DESIGN.md`.

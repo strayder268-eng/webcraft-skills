@@ -3,7 +3,7 @@ name: design-api
 description: Skill ini merancang dan menjaga kontrak API HTTP/JSON antara frontend dan backend - URL, method, status code, format error seragam (RFC 9457), validasi input, izin per endpoint, bentuk data uang/waktu/ID, pagination, idempotency, rate limit, kompatibilitas versi, serta SSE/WebSocket. Pakai saat menambah atau mengubah endpoint, mengubah bentuk request/response, memanggil API dari frontend, atau menyeragamkan pesan error.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.4"
   language: id
   status: draf
 ---
@@ -148,7 +148,10 @@ perubahan yang merusak (aturan 12): butuh ADR.
 ### 10. Idempotency [IETF Idempotency-Key]
 
 `POST` yang membuat transaksi uang, pesanan, atau mengirim pesan **wajib** menerima header `Idempotency-Key`
-(string acak dari pemanggil, mis. UUID):
+(string acak dari pemanggil, mis. UUID). Tidak termasuk API yang **ditagih per pemakaian** dan mengikuti
+kontrak pihak lain yang tidak mengenal header ini (mis. satu panggilan model AI = satu tagihan): di sana tagihan
+ganda dicegah dengan ID unik per request yang dibuat server dan constraint `UNIQUE` di ledger
+(`change-database` aturan 7).
 
 | Keadaan | Response |
 |---|---|

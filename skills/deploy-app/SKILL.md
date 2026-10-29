@@ -3,7 +3,7 @@ name: deploy-app
 description: Skill ini menjalankan aplikasi di server dengan aman dan bisa diulang - persiapan server (SSH, firewall, update), image Docker yang dibuat CI, Docker Compose produksi, HTTPS otomatis lewat reverse proxy, domain/DNS, CI/CD (test, build, push image), urutan deploy dengan migrasi dan health check, rollback, dan rahasia. Pakai saat menyiapkan server baru, menulis Dockerfile/compose, mengatur domain atau HTTPS, membuat atau mengubah workflow CI/CD, melakukan deploy, atau rollback.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.4"
   language: id
   status: draf
 ---
@@ -67,6 +67,8 @@ Server baru, Dockerfile/compose, domain/HTTPS, CI/CD, deploy, rollback.
 - `Strict-Transport-Security` dipasang (`secure-feature` aturan 3).
 - Proxy meneruskan IP asli pengunjung dalam header; aplikasi hanya mempercayai header itu dari proxy sendiri.
 - Batas ukuran body dan timeout di proxy.
+- **API admin proxy dimatikan**, atau hanya bisa diakses dari dalam server (bukan dari container lain atau
+  jaringan). Contoh bentuk: Caddy `{ admin off }` (`references/caddy.md`); nginx tidak punya API admin bawaan.
 - Proxy/CDN tambahan di depan (mis. Cloudflare) dicatat sebagai ADR, termasuk dampaknya ke IP pengunjung dan
   latensi.
 

@@ -3,7 +3,7 @@ name: change-database
 description: Skill ini merancang dan mengubah database relasional dengan aman dan efisien - desain tabel, tipe data (uang, waktu, ID), constraint, index, query, transaksi, ledger saldo, migrasi tanpa downtime, masa simpan data, dan hak akses. Pakai saat menambah atau mengubah tabel/kolom/index, menulis migrasi, menulis query, menyimpan uang atau saldo, menyimpan token/kunci/rahasia, query terasa lambat, atau tabel terus membesar.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.4"
   language: id
   status: draf
 ---
@@ -133,7 +133,8 @@ pindah alat diputuskan (ADR):
 1. Perubahan baru **hanya ditambahkan di bawah**, idempoten (`IF NOT EXISTS`), dengan komentar tanggal dan
    fitur. Baris lama tidak diedit.
 2. `DROP` dan ganti tipe tetap lewat expand → migrate → contract; tahap hapus baru ditulis setelah kode lama
-   tidak lagi di produksi.
+   tidak lagi di produksi. Menghapus tabel/kolom milik fitur yang sudah dibuang hanya butuh tahap terakhir:
+   kode berhenti memakainya dan sudah di-deploy, backup diambil, lalu `DROP` di perubahan berikutnya.
 3. Operasi berbahaya yang **sudah ada** dibuat benar-benar sekali jalan: dibungkus penjaga yang jelas
    (mis. tabel penanda `schema_once(name)` dicek di blok `DO`), atau dipindah ke skrip satu kali terpisah
    yang tidak ikut deploy. `IF EXISTS` saja tidak cukup untuk `DELETE`/`UPDATE`, karena perintah itu tetap

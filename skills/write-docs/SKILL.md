@@ -3,7 +3,7 @@ name: write-docs
 description: Skill ini menulis dan merawat dokumentasi yang selalu cocok dengan kode - README, ringkasan proyek, dokumentasi API (OpenAPI), changelog, panduan untuk pengguna, dan runbook - dengan pembagian jenis dokumen Diátaxis, bahasa sederhana, contoh yang benar-benar dijalankan, dan diperbarui di commit yang sama dengan kodenya. Pakai saat membuat atau mengubah README, menambah/mengubah endpoint API, merilis perubahan, menulis panduan pemakaian, atau saat dokumentasi sudah tidak sesuai kode.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.4"
   language: id
   status: draf
 ---
@@ -64,6 +64,9 @@ Informasi ditulis **di satu tempat**; tempat lain menautkan, tidak menyalin.
 
 - API untuk pihak luar didokumentasikan dalam file OpenAPI: setiap endpoint, cara autentikasi, skema
   request/response, **daftar `code` error**, contoh sukses dan gagal.
+- API yang mengikuti kontrak pihak lain (`design-api` aturan 2): cukup halaman yang merujuk kontrak itu
+  (versi/tautan) ditambah daftar **perbedaan dan tambahan** (endpoint, field, `code` error milik proyek).
+  OpenAPI wajib untuk endpoint tambahan itu saja.
 - File OpenAPI divalidasi di CI dan dicocokkan dengan perilaku API (test kontrak atau generate dari kode).
 - Ada halaman "Mulai cepat" dengan satu contoh `curl` lengkap yang bisa langsung dicoba.
 - Perubahan yang merusak kompatibilitas diumumkan di changelog dengan cara migrasinya (`design-api`

@@ -3,7 +3,7 @@ name: start-project
 description: Skill ini memulai proyek web dari nol (wawancara kebutuhan, memilih stack, membuat struktur dan file proyek, menyambungkan frontend-API-database pertama kali) atau memasang webcraft-skills ke proyek yang sudah ada (membaca repo, menulis file proyek, mengaudit ketidaksesuaian). Pakai saat user bilang "bikin web/aplikasi baru", "mulai proyek", atau saat proyek belum punya docs/PROJECT.md.
 license: MIT
 metadata:
-  version: "0.3"
+  version: "0.4"
   language: id
   status: draf
 ---
@@ -133,10 +133,18 @@ Satu topik satu baris, cukup sedetail yang dibutuhkan agent berikutnya untuk tah
 Tulis `docs/audit-webcraft.md` dari `assets/audit-webcraft.md`. Supaya dua agent yang mengaudit proyek yang
 sama mendapat hasil yang sama, audit dikerjakan **lengkap, bukan sampel**:
 
-1. **Per skill, per aturan.** Ambil skill yang relevan dengan proyek, urut seperti indeks README. Untuk setiap
-   aturan bernomor di "Aturan wajib", cari buktinya di repo, lalu beri satu status di *Daftar periksa*:
-   sesuai / temuan / konvensi / perlu diukur / tidak relevan. Aturan tanpa status = audit belum selesai.
-2. **Cek kebenaran sebelum menulis temuan.** Baca sumber sesuai urutan di `start-here` aturan 10. Kalau
+1. **Per skill, per aturan, per butir.** Semua skill di indeks README diperiksa, urut seperti indeks. Skill
+   yang topiknya tidak ada di proyek (mis. tidak ada pembayaran) cukup satu baris `–` dengan alasannya. Yang
+   diperiksa: setiap aturan bernomor di "Aturan wajib"; untuk skill yang isinya berupa "Langkah"
+   (`setup-design-system`), langkah bernomornya. Skill alur kerja (`start-here`, `start-project`,
+   `build-feature`, `fix-bug`) tidak masuk daftar periksa, karena mengatur cara kerja agent, bukan isi proyek.
+   - Satu aturan berisi beberapa butir. **Setiap butir** diperiksa; satu temuan tidak menghentikan
+     pemeriksaan butir lain di aturan yang sama. Satu aturan bisa punya beberapa ID temuan.
+   - **Status ✓ wajib menyebut buktinya** (file:baris yang menunjukkan aturan dipenuhi). ✓ tanpa bukti tidak
+     sah. Kalau buktinya tidak ditemukan, statusnya bukan ✓.
+   - Aturan tanpa status = audit belum selesai.
+2. **Cek kebenaran sebelum menulis temuan.** Baca sumber sesuai urutan di `start-here` aturan 10. Hanya
+   kode yang dipakai yang dinilai (lihat definisinya di aturan itu); kode mati dicatat P4. Kalau
    perilaku yang tampak salah ternyata **sengaja diputuskan** di dokumen keputusan:
    - keputusan itu memenuhi aturan wajib → bukan temuan;
    - keputusan itu melanggar aturan wajib → tetap temuan, status *perlu keputusan*, sebut dokumennya;
@@ -150,10 +158,23 @@ sama mendapat hasil yang sama, audit dikerjakan **lengkap, bukan sampel**:
    | **P3** bug yang dirasakan pengguna | pengguna atau developer mendapat hasil salah, lambat, atau petunjuk salah | README salah port, teks tidak diterjemahkan, dokumen usang |
    | **P4** struktur dan kerapian | kode sulit dirawat, tapi belum salah | file 1.800 baris, `utils.ts`, nama modul lama |
 
-   Satu temuan yang masuk dua prioritas memakai yang **lebih tinggi**. Tidak ada skala lain (tinggi/sedang/
-   rendah). Setiap temuan diberi ID tetap (`P1-01`).
+   Patokan supaya dua agent memberi prioritas yang sama:
+
+   - **P1** juga untuk semua yang **melemahkan pertahanan**, walau belum terbukti bisa dibobol: header
+     keamanan tidak sampai ke browser, token/JWT tidak dicek algoritma atau penerbitnya, input tanpa batas
+     ukuran, rate limit atau 2FA yang bisa dilewati, proses berjalan sebagai root, rahasia contoh yang lolos
+     validasi, API admin proxy terbuka.
+   - **P2** untuk semua yang membuat **riwayat uang atau data bisa hilang**, walau saldo hari ini benar:
+     ledger/audit terhapus berantai, retensi terlalu pendek, backup tanpa alert, pengiriman penting tanpa
+     antrean (bisa hilang saat proses mati).
+   - **P3** untuk dokumen yang salah, **kecuali** dokumen itu menyuruh melakukan hal berbahaya (simpan token
+     di `localStorage`, matikan pengecekan): itu P1.
+   - Satu temuan yang masuk dua prioritas memakai yang **lebih tinggi**.
+
+   Tidak ada skala lain (tinggi/sedang/rendah). Setiap temuan diberi ID tetap (`P1-01`).
 4. **Yang masuk audit:** status *utang* dan *perlu keputusan*. Status *konvensi* tidak.
-5. **Semua** file teks di `docs/` dan dokumen lain di repo (`*.md` di subfolder) diperiksa: dokumen yang
+5. **Semua** file teks di `docs/` dan semua file `*.md` lain di repo (root dan subfolder, kecuali
+   `node_modules`, vendor, dan folder build) diperiksa: dokumen yang
    menyebut fitur, halaman, atau layanan yang sudah tidak ada adalah temuan `write-docs`. Gambar dan file biner
    cukup dicatat di *Cakupan docs/*. Di mode B dokumen usang **hanya dicatat**, tidak diarsipkan atau diubah.
 6. Hal yang hanya bisa dipastikan dengan menjalankan aplikasi (waktu respons, jumlah query per request, kontras
@@ -188,6 +209,7 @@ Mode B:
   luar repo* terisi.
 - [ ] `docs/audit-webcraft.md` setiap temuan punya bukti file:baris; semua file `docs/` sudah diperiksa;
   yang butuh pengukuran ditandai "perlu diukur".
+- [ ] Setiap ✓ di daftar periksa punya bukti; tidak ada aturan tanpa status.
 - [ ] Tidak ada perubahan kode.
 
 ## Aset
