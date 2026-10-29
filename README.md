@@ -53,11 +53,11 @@ Status: `belum` = belum ditulis, `draf` = ditulis tapi belum diuji, `stabil` = l
 | | `implement-payment` | gateway bayar, webhook, saldo/ledger, uang | draf |
 | | `send-notifications` | email, Telegram, notifikasi dalam aplikasi | draf |
 | | `build-admin-panel` | panel admin, audit log, konfirmasi aksi sensitif | draf |
-| Kualitas & keamanan | `secure-feature` | fitur menyentuh login, uang, data pribadi, file, pihak ketiga; menambah library | belum |
-| | `write-tests` | menulis atau memperbaiki test | belum |
-| | `write-docs` | README, cara menjalankan, dokumentasi API | belum |
-| Infra | `deploy-app` | Docker, server, domain, HTTPS, CI/CD | belum |
-| | `operate-app` | backup, pemantauan, log, alert, insiden | belum |
+| Kualitas & keamanan | `secure-feature` | fitur menyentuh login, uang, data pribadi, file, pihak ketiga; menambah library | draf |
+| | `write-tests` | menulis atau memperbaiki test | draf |
+| | `write-docs` | README, cara menjalankan, dokumentasi API | draf |
+| Infra | `deploy-app` | Docker, server, domain, HTTPS, CI/CD | draf |
+| | `operate-app` | backup, pemantauan, log, alert, insiden | draf |
 
 ## Struktur repo
 
