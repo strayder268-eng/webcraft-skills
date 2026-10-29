@@ -45,10 +45,10 @@ Status: `belum` = belum ditulis, `draf` = ditulis tapi belum diuji, `stabil` = l
 | Struktur & data | `structure-project` | menentukan letak file, batas modul, config dan rahasia | draf |
 | | `design-api` | menambah/mengubah endpoint: kontrak, error, validasi, pagination, idempotency | draf |
 | | `change-database` | menambah/mengubah tabel, index, migrasi, tipe uang/waktu | draf |
-| | `build-backend` | logika server: lapisan, error, log, cache, antrean, rate limit | belum |
-| UI | `setup-design-system` | menentukan token warna, font, spasi, tema proyek | belum |
-| | `build-ui` | membuat komponen, halaman, form; responsif, aksesibilitas, SEO, performa | belum |
-| | `manage-translations` | teks yang tampil ke user, menambah bahasa | belum |
+| | `build-backend` | logika server: lapisan, error, log, cache, antrean, rate limit | draf |
+| UI | `setup-design-system` | menentukan token warna, font, spasi, tema proyek | draf |
+| | `build-ui` | membuat komponen, halaman, form; responsif, aksesibilitas, SEO, performa | draf |
+| | `manage-translations` | teks yang tampil ke user, menambah bahasa | draf |
 | Fitur umum | `implement-auth` | daftar, login (email/OAuth/Telegram), sesi, reset, 2FA, peran | belum |
 | | `implement-payment` | gateway bayar, webhook, saldo/ledger, uang | belum |
 | | `send-notifications` | email, Telegram, notifikasi dalam aplikasi | belum |
