@@ -1,6 +1,6 @@
 ---
 name: secure-feature
-description: Skill ini memeriksa keamanan sebelum dan sesudah coding - threat model ringan (STRIDE), checklist OWASP Top 10:2025, header keamanan dan CSP, upload file, SSRF, pemilihan dan pembaruan library, pemindaian rahasia, serta perlindungan data pribadi (UU PDP). Pakai saat fitur menyentuh login, uang, data pribadi, file, admin, atau layanan pihak ketiga, saat menambah atau memperbarui library, saat ada dugaan celah, atau sebelum rilis.
+description: Skill ini memeriksa keamanan sebelum dan sesudah coding - threat model ringan (STRIDE), checklist OWASP Top 10:2025, header keamanan dan CSP, file dan path traversal, SSRF, injeksi selain SQL, bot dan penyalahgunaan, fitur AI/LLM, pemilihan library, pemindaian rahasia, serta perlindungan data pribadi (UU PDP). Pakai saat fitur menyentuh login, uang, data pribadi, file, admin, model AI, atau layanan pihak ketiga, saat menambah atau memperbarui library, saat ada dugaan celah, atau sebelum rilis.
 license: MIT
 metadata:
   version: "0.1"
@@ -55,9 +55,9 @@ Jawab empat pertanyaan, hasilnya ditulis di bagian "Keamanan" spek fitur:
 |---|---|---|
 | A01 Broken Access Control | izin di server, cek pemilik objek, tolak bawaan | `design-api`, `implement-auth` |
 | A02 Security Misconfiguration | mode debug mati, akun/kunci bawaan diganti, header keamanan, port tertutup | `deploy-app` |
-| A03 Software Supply Chain Failures | library dicek, lockfile, CI terkunci | langkah 6 |
-| A04 Cryptographic Failures | HTTPS di semua jalur, hash sandi benar, tidak membuat kripto sendiri | `implement-auth`, `deploy-app` |
-| A05 Injection | query berparameter, tidak menyusun perintah shell dari input, HTML di-escape | `change-database`, `build-ui` |
+| A03 Software Supply Chain Failures | library dicek, lockfile, CI terkunci | langkah 9 |
+| A04 Cryptographic Failures | HTTPS di semua jalur, hash sandi benar, data rahasia dienkripsi, tidak membuat kripto sendiri | `implement-auth`, `change-database` aturan 11, `deploy-app` |
+| A05 Injection | query berparameter, injeksi lain di langkah 6 | `change-database`, langkah 6 |
 | A06 Insecure Design | threat model, rate limit, aturan bisnis dijaga server | langkah 1, `build-backend` |
 | A07 Authentication Failures | sesi, sandi, 2FA, batas percobaan | `implement-auth` |
 | A08 Software or Data Integrity Failures | tanda tangan webhook diverifikasi, image/artefak dari CI sendiri | `implement-payment`, `deploy-app` |
@@ -79,7 +79,7 @@ Jawab empat pertanyaan, hasilnya ditulis di bagian "Keamanan" spek fitur:
 `X-XSS-Protection` tidak dipasang (atau `0`). CSP baru dipasang dulu dalam mode `Report-Only`, diamati, lalu
 ditegakkan.
 
-### 4. Upload file [OWASP File Upload]
+### 4. File: upload, unduh, arsip [OWASP File Upload]
 
 - Daftar jenis yang diizinkan (ekstensi **dan** isi file dicek), batas ukuran.
 - Nama file diganti nama acak; tidak memakai nama/path dari user.
@@ -87,6 +87,11 @@ ditegakkan.
 - Disajikan dengan `Content-Disposition: attachment` atau dari domain terpisah; SVG/HTML dari user tidak
   disajikan inline.
 - Metadata gambar (lokasi GPS) dibuang bila gambar ditampilkan ke orang lain.
+- **Path traversal:** file diambil lewat ID yang dicari di database, bukan nama/path dari request. Kalau
+  terpaksa memakai nama, buka hanya di dalam folder dasar dengan API yang menolak `..` dan symlink keluar
+  (cara per bahasa di `references/`), dan cek pemiliknya.
+- **Arsip (zip/gzip) dari user:** batasi jumlah file, total ukuran setelah dibuka, dan kedalaman; tolak nama
+  entri berisi `..` atau path absolut (*zip slip*), supaya tidak bisa membanjiri disk (*zip bomb*).
 
 ### 5. Server mengambil URL dari user (SSRF) [OWASP SSRF]
 
@@ -94,7 +99,54 @@ Kalau server mengunduh/memanggil URL yang diberikan user (webhook user, pratinja
 domain diizinkan lewat daftar, alamat IP internal/privat ditolak **setelah** DNS di-resolve dan di setiap
 redirect, batas waktu dan ukuran.
 
-### 6. Library [OWASP Vulnerable Dependency Management]
+### 6. Injeksi selain SQL [OWASP XSS Prevention]
+
+| Tempat | Aturan |
+|---|---|
+| HTML | biarkan framework meng-escape; HTML/Markdown dari user dibersihkan dengan sanitizer teruji sebelum ditampilkan |
+| Tautan dari user | hanya skema `http:`/`https:` (tolak `javascript:`, `data:`) |
+| URL yang disusun | setiap bagian di-encode (`encodeURIComponent`, `url.QueryEscape`) |
+| Header HTTP/email | nilai dari user tidak boleh berisi `\r`/`\n`; pakai pustaka email, jangan menyusun header sendiri |
+| Perintah sistem | hindari; kalau terpaksa, argumen terpisah tanpa shell (`references/go.md`) |
+| Template | user tidak pernah bisa mengisi isi template yang dijalankan server |
+| Regex | regex tidak pernah dari input user; di bahasa dengan regex *backtracking* (JavaScript), hindari pola bersarang seperti `(a+)+` yang bisa membuat server macet (ReDoS) |
+| Log | log terstruktur (JSON) supaya baris baru dari input tidak bisa memalsukan baris log |
+
+### 7. Bot dan penyalahgunaan [OWASP Automated Threats]
+
+- **Tantangan anti-bot** (mis. Turnstile/CAPTCHA) di daftar akun, lupa sandi, formulir publik, dan login
+  setelah beberapa kali gagal. Token tantangan **diverifikasi di server**, bukan hanya di browser.
+- **Bonus/kredit gratis/trial:** satu per identitas terverifikasi (email terverifikasi, akun Telegram/Google),
+  tolak email sekali pakai, waspadai banyak akun dari IP/perangkat yang sama.
+- **Biaya per user:** operasi yang mahal (panggilan AI, SMS, email, ekspor besar) punya kuota harian dan batas
+  belanja per user/kunci, selain rate limit.
+- **Sinyal kecurangan:** lonjakan pemakaian, banyak percobaan pembayaran gagal, pola akun baru yang sama →
+  alert ke admin (`operate-app`), dan kemampuan membekukan akun.
+- Abuse case ditulis bersama threat model: "bagaimana fitur ini bisa dipakai untuk merugikan kita/orang lain?"
+  [OWASP Abuse Case]
+
+### 8. Fitur AI/LLM [OWASP Top 10 for LLM Applications 2025]
+
+Berlaku kalau fitur memanggil model AI (chat, ringkasan, agen, RAG), termasuk aplikasi yang meneruskan
+permintaan ke penyedia model.
+
+| Risiko | Aturan |
+|---|---|
+| LLM01 Prompt Injection | anggap **semua** isi yang masuk ke model bisa berisi perintah jahat, termasuk dokumen/halaman/email yang diambil (injeksi tidak langsung). Tidak bisa dicegah 100%, jadi batasi akibatnya (baris LLM06) |
+| LLM02 Sensitive Information Disclosure | jangan mengirim data pribadi/rahasia yang tidak perlu ke penyedia model; cek kebijakan penyimpanan data penyedia; jawaban model tidak boleh berisi data user lain |
+| LLM05 Improper Output Handling | keluaran model = **input tak tepercaya**: di-escape sebelum ditampilkan, divalidasi skemanya sebelum dipakai, tidak pernah langsung dijalankan sebagai SQL/perintah/kode/URL redirect |
+| LLM06 Excessive Agency | alat (tools) yang bisa dipanggil model dibatasi seminimal mungkin, berjalan dengan izin user yang meminta (bukan izin admin), dan aksi yang mengubah data/uang/mengirim pesan butuh konfirmasi manusia |
+| LLM07 System Prompt Leakage | anggap system prompt bisa bocor: tidak berisi kunci, sandi, atau aturan keamanan yang hanya dijaga lewat prompt |
+| LLM08 Vector and Embedding Weaknesses | pencarian dokumen (RAG) memfilter berdasarkan izin user **sebelum** hasilnya diberikan ke model |
+| LLM10 Unbounded Consumption | batasi panjang input, `max_tokens`, timeout, jumlah request, dan **biaya** per user/kunci; hentikan stream saat user memutus koneksi |
+
+- Kunci API penyedia model hanya di server (terenkripsi kalau disimpan di database, `change-database`).
+- Prompt dan jawaban yang dicatat di log mengikuti aturan data pribadi (langkah 11): seperlunya, dengan masa
+  simpan.
+- Model dan library AI melewati checklist library (langkah 9). Isi jawaban model bisa salah (LLM09): tampilkan
+  penanda bahwa jawaban dibuat AI untuk hal yang berisiko.
+
+### 9. Library [OWASP Vulnerable Dependency Management]
 
 Sebelum menambah:
 
@@ -108,14 +160,14 @@ Sebelum menambah:
 Selalu: lockfile di-commit, instal persis sesuai lockfile di CI, pemindai kerentanan di CI, pembaruan rutin,
 kerentanan kritis ditambal secepatnya.
 
-### 7. Rahasia
+### 10. Rahasia
 
 - Pemindai rahasia di CI (dan sebaiknya sebelum commit).
 - Rahasia yang pernah ter-commit atau terkirim di chat **dianggap bocor**: ganti (rotasi) di penyedianya.
   Menghapusnya dari git tidak cukup.
 - Rahasia berbeda untuk setiap lingkungan.
 
-### 8. Data pribadi [UU PDP No. 27 Tahun 2022]
+### 11. Data pribadi [UU PDP No. 27 Tahun 2022]
 
 - Kumpulkan **seperlunya**, dengan tujuan yang ditulis di kebijakan privasi.
 - Persetujuan terpisah untuk pemasaran.
@@ -128,7 +180,8 @@ kerentanan kritis ditambal secepatnya.
 
 - Menganggap fitur aman karena "tidak ada yang tahu URL-nya".
 - Keamanan yang hanya dijaga frontend.
-- Menambah library tanpa checklist langkah 6.
+- Menambah library tanpa checklist langkah 9.
+- Menjalankan keluaran model AI tanpa validasi, atau memberi model alat dengan izin admin.
 - Menunda rotasi rahasia yang bocor.
 
 ## Cek hasil
@@ -137,6 +190,7 @@ kerentanan kritis ditambal secepatnya.
 - [ ] Setiap pencegahan punya test.
 - [ ] Pemindai kerentanan dan pemindai rahasia lulus di CI.
 - [ ] Header keamanan terpasang (cek dengan `curl -I`).
+- [ ] Fitur AI: batas token/biaya per user ada dan diuji; keluaran model tidak dijalankan tanpa validasi.
 
 ## Stack
 
@@ -151,6 +205,13 @@ kerentanan kritis ditambal secepatnya.
 - [OWASP Content Security Policy Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html).
 - [OWASP File Upload Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html).
 - [OWASP SSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html).
+- [OWASP Cross Site Scripting Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html).
+- [OWASP: Regular expression Denial of Service (ReDoS)](https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS).
+- [OWASP Automated Threats to Web Applications](https://owasp.org/www-project-automated-threats-to-web-applications/).
+- [OWASP Abuse Case Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Abuse_Case_Cheat_Sheet.html).
+- [OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/llm-top-10/).
+- [OWASP LLM Prompt Injection Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html).
+- [Cloudflare Turnstile: Server-side validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/).
 - [OWASP Vulnerable Dependency Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Vulnerable_Dependency_Management_Cheat_Sheet.html).
 - [gitleaks](https://github.com/gitleaks/gitleaks): pemindai rahasia.
 - [UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi](https://peraturan.bpk.go.id/Details/229798/uu-no-27-tahun-2022).

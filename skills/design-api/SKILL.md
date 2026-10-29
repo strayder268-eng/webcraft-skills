@@ -1,6 +1,6 @@
 ---
 name: design-api
-description: Skill ini merancang dan menjaga kontrak API HTTP/JSON antara frontend dan backend - URL, method, status code, format error seragam (RFC 9457), validasi input, izin per endpoint, bentuk data uang/waktu/ID, pagination, idempotency, rate limit, dan kompatibilitas versi. Pakai saat menambah atau mengubah endpoint, mengubah bentuk request/response, memanggil API dari frontend, atau menyeragamkan pesan error.
+description: Skill ini merancang dan menjaga kontrak API HTTP/JSON antara frontend dan backend - URL, method, status code, format error seragam (RFC 9457), validasi input, izin per endpoint, bentuk data uang/waktu/ID, pagination, idempotency, rate limit, kompatibilitas versi, serta SSE/WebSocket. Pakai saat menambah atau mengubah endpoint, mengubah bentuk request/response, memanggil API dari frontend, atau menyeragamkan pesan error.
 license: MIT
 metadata:
   version: "0.1"
@@ -160,6 +160,17 @@ Endpoint login, daftar, reset sandi, pembayaran, dan API publik diberi batas. Me
 
 Hanya origin yang terdaftar. Tidak pernah `*` untuk endpoint yang memakai cookie/kredensial.
 
+### 14. Koneksi panjang: SSE dan WebSocket [OWASP WebSocket Security]
+
+- **SSE** (*Server-Sent Events*, mis. streaming jawaban AI) memakai aturan endpoint HTTP biasa: autentikasi,
+  izin, rate limit. Stream dihentikan saat klien memutus koneksi, dan ada batas waktu/ukuran total.
+- **WebSocket tidak dilindungi CORS.** Saat jabat tangan (*handshake*): cek header `Origin` terhadap daftar
+  yang diizinkan, dan autentikasi (cookie sesi/kunci API). Token tidak dikirim lewat query string.
+- Setiap pesan yang masuk divalidasi dan dicek izinnya seperti request biasa; jangan hanya mengandalkan cek di
+  awal koneksi.
+- Batasi ukuran pesan, jumlah pesan per detik, jumlah koneksi per user, dan putuskan koneksi yang menganggur.
+- Pakai `wss://` (TLS). Sesi yang di-logout/dicabut juga memutus koneksi yang masih terbuka.
+
 ## Larangan
 
 - `GET` yang mengubah data.
@@ -191,4 +202,5 @@ Hanya origin yang terdaftar. Tidak pernah `*` untuk endpoint yang memakai cookie
 - [OWASP Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html).
 - [OWASP Mass Assignment Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html).
 - [OWASP REST Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html).
+- [OWASP WebSocket Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/WebSocket_Security_Cheat_Sheet.html).
 - [Use The Index, Luke: Paging Through Results (no offset)](https://use-the-index-luke.com/no-offset).

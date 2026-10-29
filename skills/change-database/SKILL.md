@@ -1,6 +1,6 @@
 ---
 name: change-database
-description: Skill ini merancang dan mengubah database relasional dengan aman dan efisien - desain tabel, tipe data (uang, waktu, ID), constraint, index, query, transaksi, ledger saldo, migrasi tanpa downtime, masa simpan data, dan hak akses. Pakai saat menambah atau mengubah tabel/kolom/index, menulis migrasi, menulis query, menyimpan uang atau saldo, query terasa lambat, atau tabel terus membesar.
+description: Skill ini merancang dan mengubah database relasional dengan aman dan efisien - desain tabel, tipe data (uang, waktu, ID), constraint, index, query, transaksi, ledger saldo, migrasi tanpa downtime, masa simpan data, dan hak akses. Pakai saat menambah atau mengubah tabel/kolom/index, menulis migrasi, menulis query, menyimpan uang atau saldo, menyimpan token/kunci/rahasia, query terasa lambat, atau tabel terus membesar.
 license: MIT
 metadata:
   version: "0.1"
@@ -133,6 +133,28 @@ JSON API (`design-api`).
 - Aplikasi memakai **connection pool** dengan ukuran terbatas, dan setiap query punya batas waktu.
 - Data pribadi disimpan seperlunya. Sandi tidak pernah disimpan apa adanya (`implement-auth`).
 
+### 11. Data rahasia di database [OWASP Cryptographic Storage]
+
+Pilih cara menyimpan berdasarkan perlu-tidaknya nilai asli dibaca lagi:
+
+| Data | Perlu dibaca lagi? | Simpan sebagai |
+|---|---|---|
+| Sandi user | tidak | hash lambat: Argon2id/bcrypt (`implement-auth`) |
+| Kunci API yang kita terbitkan, token sesi/reset | tidak | hash SHA-256 (nilainya acak dan panjang) |
+| Kunci API milik pihak ketiga, rahasia TOTP, token OAuth, data sangat sensitif | ya | **dienkripsi** AES-256-GCM |
+
+Aturan enkripsi:
+
+- Pakai algoritma terautentikasi (AES-256-GCM) dari pustaka standar bahasa. Tidak membuat skema sendiri,
+  tidak memakai mode ECB/CBC tanpa autentikasi.
+- Nonce acak baru setiap enkripsi, dari pembangkit acak kriptografis (bukan `math/rand`/`Math.random`).
+- Kunci enkripsi **tidak** di database dan tidak di repo: dari environment/secret server (atau KMS), dan
+  disimpan juga oleh admin di tempat aman terpisah dari backup. Tanpa kunci itu data tidak bisa dibuka.
+- Simpan **ID kunci** bersama data terenkripsi, supaya kunci bisa dirotasi: data baru memakai kunci baru,
+  data lama dienkripsi ulang bertahap.
+- Ikat data terenkripsi ke barisnya (*associated data*: nama tabel/kolom + ID baris), supaya nilai terenkripsi
+  tidak bisa dipindah ke baris lain.
+
 ## Larangan
 
 - Mengubah struktur langsung di database produksi.
@@ -149,6 +171,7 @@ JSON API (`design-api`).
 - [ ] Query baru dicek dengan `EXPLAIN` bila menyentuh tabel besar.
 - [ ] Tidak ada N+1; daftar punya batas.
 - [ ] Test database membersihkan datanya sendiri (`write-tests`).
+- [ ] Kolom rahasia tersimpan sebagai hash atau terenkripsi sesuai tabel aturan 11; tidak ada nilai asli di database.
 
 ## Stack
 
@@ -162,4 +185,5 @@ JSON API (`design-api`).
 - [PostgreSQL: Using EXPLAIN](https://www.postgresql.org/docs/current/using-explain.html).
 - [Use The Index, Luke](https://use-the-index-luke.com/): index dan pagination tanpa offset.
 - [Martin Fowler: Parallel Change](https://martinfowler.com/bliki/ParallelChange.html).
+- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html).
 - [OWASP SQL Injection Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html).

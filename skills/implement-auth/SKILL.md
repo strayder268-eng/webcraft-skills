@@ -1,6 +1,6 @@
 ---
 name: implement-auth
-description: Skill ini membuat fitur akun yang aman - daftar, login (email+sandi, Google, Telegram, atau penyedia OpenID Connect lain), sesi dan cookie, logout, reset sandi, verifikasi email, 2FA/TOTP, konfirmasi ulang untuk aksi sensitif, peran dan izin, serta pencegahan CSRF dan penebakan akun. Pakai saat menambah atau mengubah login, pendaftaran, sesi, lupa sandi, 2FA, peran user/admin, halaman yang wajib login, atau menghubungkan akun ke Google/Telegram.
+description: Skill ini membuat fitur akun yang aman - daftar, login (email+sandi, Google, Telegram, atau penyedia OpenID Connect lain), sesi dan cookie, logout, reset sandi, verifikasi email, 2FA/TOTP, konfirmasi ulang untuk aksi sensitif, peran dan izin, kunci API, JWT, serta pencegahan CSRF dan penebakan akun. Pakai saat menambah atau mengubah login, pendaftaran, sesi, lupa sandi, 2FA, peran user/admin, halaman yang wajib login, atau menghubungkan akun ke Google/Telegram, menerbitkan kunci API, atau memakai JWT.
 license: MIT
 metadata:
   version: "0.1"
@@ -114,7 +114,35 @@ tarik/kirim uang, aksi admin berisiko.
 - Setiap akses objek berdasarkan ID mengecek pemiliknya (`design-api` aturan 7).
 - Pengecekan di frontend (menyembunyikan menu) hanya untuk tampilan, bukan keamanan.
 
-### 12. Catatan peristiwa
+### 12. Kunci API untuk user/mesin
+
+Kalau proyek menerbitkan kunci API (untuk dipakai program, bukan browser):
+
+- Dibuat dari pembangkit acak kriptografis, minimal 128 bit, dengan **awalan** yang mudah dikenali
+  (`sk-live-…`, `sk-test-…`). Awalan membantu pemindai rahasia mengenali kunci yang bocor.
+- **Ditampilkan sekali** saat dibuat. Yang disimpan hanya hash-nya (SHA-256 cukup karena kuncinya acak dan
+  panjang), plus potongan untuk ditampilkan (`sk-live-…a1b2`).
+- Dikirim di header `Authorization: Bearer …`, **tidak pernah** di URL/query (URL tercatat di log dan riwayat).
+- Setiap kunci punya pemilik, nama, cakupan izin (scope) seperlunya, waktu dipakai terakhir, dan bisa dicabut
+  kapan saja. Masa berlaku opsional, dianjurkan untuk kunci berizin besar.
+- Rate limit dan batas biaya **per kunci** (`build-backend`, `secure-feature`).
+- Log hanya mencatat potongan kunci.
+- Kunci tidak berlaku untuk endpoint browser/admin, dan cookie sesi tidak berlaku untuk endpoint kunci API
+  (dua jalur autentikasi dipisah).
+
+### 13. JWT dan token mandiri [RFC 8725]
+
+Untuk web, sesi di server lebih disarankan (aturan 6). Kalau JWT tetap dipakai (mis. antarlayanan):
+
+- Algoritma ditentukan server dari daftar tetap; token dengan `alg: none` atau algoritma lain ditolak.
+  Kunci simetris (HS256) dan asimetris (RS/ES) tidak boleh tertukar.
+- Selalu cek `iss`, `aud`, `exp` (dan `nbf` kalau ada). Masa berlaku singkat (menit, bukan hari).
+- Isi JWT bisa dibaca siapa pun: **tidak** berisi data rahasia/pribadi.
+- Ada cara mencabut (daftar token dicabut atau masa berlaku singkat + refresh token yang disimpan di server).
+- Kunci tanda tangan dirotasi lewat `kid`/JWKS.
+- Pakai pustaka JWT yang teruji, tidak mem-parse/memverifikasi sendiri.
+
+### 14. Catatan peristiwa
 
 Dicatat (`build-backend`): login berhasil/gagal, logout, ganti sandi/email, aktif/nonaktif 2FA, reset sandi,
 perubahan peran. Ganti sandi/email/2FA juga diberitahukan ke user.
@@ -134,6 +162,7 @@ perubahan peran. Ganti sandi/email/2FA juga diberitahukan ke user.
       ditolak, request tanpa `Origin` yang benar ditolak.
 - [ ] Test OIDC: `state`/`nonce` salah ditolak, `aud`/`iss` salah ditolak, token kedaluwarsa ditolak.
 - [ ] Cookie sesi punya atribut yang benar (cek di browser).
+- [ ] Test kunci API: kunci dicabut ditolak, kunci di query string ditolak, hanya hash yang tersimpan.
 - [ ] Tidak ada sandi/token di log.
 
 ## Stack
@@ -147,6 +176,7 @@ perubahan peran. Ganti sandi/email/2FA juga diberitahukan ke user.
 
 - [NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b.html): sandi, batas percobaan, reautentikasi.
 - [RFC 9700: OAuth 2.0 Security Best Current Practice](https://www.rfc-editor.org/rfc/rfc9700.html).
+- [RFC 8725: JSON Web Token Best Current Practices](https://www.rfc-editor.org/rfc/rfc8725.html).
 - [RFC 6238: TOTP](https://www.rfc-editor.org/rfc/rfc6238.html).
 - [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html).
 - [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).

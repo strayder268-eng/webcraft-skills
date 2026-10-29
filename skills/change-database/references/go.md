@@ -85,6 +85,69 @@ go run github.com/securego/gosec/v2/cmd/gosec@<versi> -include=G201,G202 ./...
 Potongan SQL tetap dari allowlist seperti `orderBy` di atas bisa ikut ditandai; beri komentar `// #nosec G202`
 **beserta alasannya** di baris itu saja, jangan mematikan aturannya.
 
+## Enkripsi kolom rahasia (AES-256-GCM)
+
+Pustaka standar Go saja. Format tersimpan: `<idKunci>:<base64(nonce|ciphertext)>`.
+
+```go
+// internal/platform/secretbox
+type Box struct {
+    current string                 // ID kunci untuk enkripsi baru
+    keys    map[string]cipher.AEAD // semua kunci yang masih bisa membuka data lama
+}
+
+func NewBox(current string, rawKeys map[string][]byte) (*Box, error) {
+    b := &Box{current: current, keys: map[string]cipher.AEAD{}}
+    for id, k := range rawKeys {
+        if len(k) != 32 {
+            return nil, errors.New("kunci harus 32 byte (AES-256)")
+        }
+        block, err := aes.NewCipher(k)
+        if err != nil {
+            return nil, err
+        }
+        gcm, err := cipher.NewGCM(block)
+        if err != nil {
+            return nil, err
+        }
+        b.keys[id] = gcm
+    }
+    if _, ok := b.keys[current]; !ok {
+        return nil, errors.New("kunci aktif tidak ada")
+    }
+    return b, nil
+}
+
+// aad mengikat nilai ke tempatnya, mis. "provider_keys.api_key:42".
+func (b *Box) Seal(plain, aad []byte) (string, error) {
+    gcm := b.keys[b.current]
+    nonce := make([]byte, gcm.NonceSize())
+    if _, err := rand.Read(nonce); err != nil { // crypto/rand
+        return "", err
+    }
+    out := gcm.Seal(nonce, nonce, plain, aad)
+    return b.current + ":" + base64.RawStdEncoding.EncodeToString(out), nil
+}
+
+func (b *Box) Open(stored string, aad []byte) ([]byte, error) {
+    id, enc, ok := strings.Cut(stored, ":")
+    gcm, known := b.keys[id]
+    if !ok || !known {
+        return nil, errors.New("format/kunci tidak dikenal")
+    }
+    raw, err := base64.RawStdEncoding.DecodeString(enc)
+    if err != nil || len(raw) < gcm.NonceSize() {
+        return nil, errors.New("data rusak")
+    }
+    return gcm.Open(nil, raw[:gcm.NonceSize()], raw[gcm.NonceSize():], aad)
+}
+```
+
+- Kunci dibaca dari env saat start (mis. `SECRET_KEYS=k1:<base64>,k2:<base64>`, `SECRET_KEY_CURRENT=k2`).
+- Rotasi: tambah kunci baru sebagai `current`, kunci lama tetap ada untuk membuka data lama; pekerjaan latar
+  mengenkripsi ulang baris lama; setelah selesai, kunci lama dihapus.
+- Membuka dengan `aad` yang berbeda (nilai dipindah ke baris lain) gagal dengan error autentikasi.
+
 ## Transaksi
 
 ```go
@@ -141,3 +204,4 @@ menjatuhkan aplikasi.
 - [PostgreSQL: Error Codes](https://www.postgresql.org/docs/current/errcodes-appendix.html).
 - [goose](https://github.com/pressly/goose).
 - [gosec](https://github.com/securego/gosec): aturan G201, G202.
+- [crypto/cipher: NewGCM](https://pkg.go.dev/crypto/cipher#NewGCM).

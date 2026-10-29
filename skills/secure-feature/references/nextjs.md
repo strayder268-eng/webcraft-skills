@@ -63,6 +63,31 @@ export default {
 React meng-escape isi secara otomatis. `dangerouslySetInnerHTML` hanya untuk HTML yang sudah dibersihkan
 dengan sanitizer, dan dicatat alasannya.
 
+## HTML/Markdown dari user
+
+Kalau isi buatan user harus tampil sebagai HTML (mis. Markdown yang dirender), bersihkan dulu dengan sanitizer
+teruji (mis. DOMPurify; library ditambah lewat ADR), dengan daftar tag yang diizinkan sesempit mungkin.
+
+## Tautan dari user
+
+```ts
+export function safeHref(input: string): string | undefined {
+  try {
+    const u = new URL(input);
+    return u.protocol === 'https:' || u.protocol === 'http:' ? u.toString() : undefined; // tolak javascript:, data:
+  } catch {
+    return undefined;
+  }
+}
+```
+
+Tautan eksternal dari user diberi `rel="noopener noreferrer nofollow ugc"`.
+
+## Source map
+
+Source map JavaScript tidak dipublikasikan di produksi (`productionBrowserSourceMaps` tetap `false`, bawaan
+Next.js). [Next.js: productionBrowserSourceMaps]
+
 ## Library
 
 ```sh
@@ -75,4 +100,6 @@ npm audit --omit=dev      # kerentanan pada dependensi produksi
 - [Next.js: Content Security Policy](https://nextjs.org/docs/app/guides/content-security-policy)
 - [Next.js: headers](https://nextjs.org/docs/app/api-reference/config/next-config-js/headers)
 - [Next.js: poweredByHeader](https://nextjs.org/docs/app/api-reference/config/next-config-js/poweredByHeader)
+- [Next.js: productionBrowserSourceMaps](https://nextjs.org/docs/app/api-reference/config/next-config-js/productionBrowserSourceMaps)
+- [DOMPurify](https://github.com/cure53/DOMPurify)
 - [npm audit](https://docs.npmjs.com/cli/v10/commands/npm-audit)

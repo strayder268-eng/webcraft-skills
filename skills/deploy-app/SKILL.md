@@ -104,6 +104,27 @@ Langkah *contract* (hapus kolom lama) baru dijalankan setelah versi baru stabil,
 - Minimal: lokal dan produksi. Staging disarankan begitu ada pembayaran atau user sungguhan.
 - Rahasia, database, dan kunci layanan luar (mode sandbox vs live) **berbeda** di setiap lingkungan.
 
+### 9. Konfigurasi aman di produksi [OWASP ASVS V13]
+
+- Mode produksi aktif (`NODE_ENV=production`, mode debug framework mati); halaman error tidak menampilkan
+  stack trace.
+- Endpoint debug/profiling (mis. `pprof`, `/debug`, dashboard internal) mati, atau hanya bisa diakses dari
+  jaringan internal.
+- Source map JavaScript tidak dipublikasikan; folder `.git`, file `.env`, dan cadangan tidak pernah tersaji di
+  web; daftar isi folder (*directory listing*) mati.
+- Akun, sandi, dan kunci bawaan dari image/alat apa pun diganti sebelum online.
+- Endpoint contoh/test dan data seed contoh tidak ikut ke produksi.
+- Versi software tidak diumumkan di header/halaman error.
+
+### 10. Koneksi antar layanan [OWASP ASVS V12]
+
+- Satu server, satu jaringan Docker internal: koneksi ke database/Redis tanpa TLS dapat diterima karena tidak
+  keluar dari mesin.
+- Begitu melewati jaringan lain (database terkelola, server terpisah, antar region): **wajib TLS dengan
+  verifikasi sertifikat** (PostgreSQL `sslmode=verify-full`, Redis TLS).
+- Panggilan keluar ke layanan luar selalu memverifikasi sertifikat; mematikan verifikasi
+  (`InsecureSkipVerify`, `NODE_TLS_REJECT_UNAUTHORIZED=0`) dilarang di luar test lokal.
+
 ## Larangan
 
 - Build atau edit kode langsung di server produksi.
@@ -118,6 +139,7 @@ Langkah *contract* (hapus kolom lama) baru dijalankan setelah versi baru stabil,
 - [ ] Port yang terbuka dari luar hanya yang direncanakan (cek dari luar server).
 - [ ] `curl -I https://domain` menunjukkan HTTPS valid dan header keamanan.
 - [ ] Rollback sudah pernah dicoba (minimal sekali di staging/lokal).
+- [ ] Dari luar: `/.git/`, `/.env`, endpoint debug, dan file `.map` mengembalikan 404.
 - [ ] Tidak ada rahasia di image (`docker history`, isi image) maupun di log CI.
 
 ## Stack
@@ -133,4 +155,6 @@ Langkah *contract* (hapus kolom lama) baru dijalankan setelah versi baru stabil,
 - [OWASP Docker Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html).
 - [GitHub Actions: Security hardening](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions).
 - [Caddy: Automatic HTTPS](https://caddyserver.com/docs/automatic-https).
+- [OWASP ASVS 5.0](https://owasp.org/www-project-application-security-verification-standard/): V12 Secure Communication, V13 Configuration.
+- [PostgreSQL: SSL support (sslmode)](https://www.postgresql.org/docs/current/libpq-ssl.html).
 - [Next.js: Self-hosting](https://nextjs.org/docs/app/guides/self-hosting).

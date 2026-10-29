@@ -72,7 +72,8 @@ mode "proyek yang sudah ada".
 | "panel admin" | `build-admin-panel` |
 | "warna/tema/font web" | `setup-design-system` |
 | "tambah bahasa", "terjemahan" | `manage-translations` |
-| "aman nggak?", "pakai library X" | `secure-feature` |
+| "aman nggak?", "pakai library X", "tambah fitur AI/chatbot", "kena bot/spam" | `secure-feature` (+ `build-feature` untuk membangunnya) |
+| "kunci API untuk user" | `implement-auth` |
 | "tambah test" | `write-tests` |
 | "README", "dokumentasi API" | `write-docs` |
 | "deploy", "domain", "HTTPS", "CI" | `deploy-app` |
