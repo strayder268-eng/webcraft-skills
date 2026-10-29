@@ -5,7 +5,7 @@ Sebelum mengerjakan tugas apa pun, ikuti skill `start-here`.
 
 ## Ringkasan
 
-- Tujuan, stack, cara menjalankan: `docs/PROJECT.md`
+- Tujuan, stack, cara menjalankan, konvensi proyek: `docs/PROJECT.md`
 - Desain (token, komponen): `docs/DESIGN.md`
 - Daftar fitur: `docs/features/README.md`
 - Keputusan: `docs/decisions/`

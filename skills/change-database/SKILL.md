@@ -3,7 +3,7 @@ name: change-database
 description: Skill ini merancang dan mengubah database relasional dengan aman dan efisien - desain tabel, tipe data (uang, waktu, ID), constraint, index, query, transaksi, ledger saldo, migrasi tanpa downtime, masa simpan data, dan hak akses. Pakai saat menambah atau mengubah tabel/kolom/index, menulis migrasi, menulis query, menyimpan uang atau saldo, menyimpan token/kunci/rahasia, query terasa lambat, atau tabel terus membesar.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -120,6 +120,27 @@ JSON API (`design-api`).
 - Migrasi di tabel besar tidak boleh mengunci tabel lama-lama (cara per database ada di `references/`).
 - Sebelum migrasi produksi: backup (`operate-app`), uji migrasi di salinan data, **izin user**.
 - Migrasi dijalankan **sebelum** kode yang membutuhkannya di-deploy.
+
+Contoh bentuk: alat migrasi bernomor (goose untuk Go, lihat `references/`). Alat lain sah asal setiap
+perubahan tercatat berurutan di repo dan bisa diulang.
+
+**Proyek lama dengan satu file skema** (mis. `schema.sql` idempoten yang dijalankan ulang setiap deploy):
+statusnya *utang* kalau file itu berisi `DROP`/ubah tipe yang ikut jalan setiap kali, karena tidak ada urutan
+dan tidak ada tahapan. Sampai pindah alat diputuskan (ADR):
+
+1. Perubahan baru **hanya ditambahkan di bawah**, idempoten (`IF NOT EXISTS`), dengan komentar tanggal dan
+   fitur. Baris lama tidak diedit.
+2. `DROP` dan ganti tipe tetap lewat expand → migrate → contract; tahap hapus baru ditulis setelah kode lama
+   tidak lagi di produksi.
+3. File dijalankan dua kali di database test; hasil kedua tidak boleh error atau mengubah apa pun.
+
+Jalur pindah ke migrasi bernomor (satu tugas sendiri, dengan backup dan izin user):
+
+1. Ambil struktur produksi (`pg_dump --schema-only`) dan pastikan sama dengan hasil file skema di database
+   kosong. Perbedaan diselesaikan dulu.
+2. Jadikan hasilnya migrasi pertama (*baseline*).
+3. Tandai baseline sudah berjalan di produksi **tanpa menjalankannya** (cara per alat di dokumentasi alat itu).
+4. Sejak itu semua perubahan berupa file bernomor baru; file skema lama tidak diedit lagi.
 
 ### 9. Data yang terus bertambah
 

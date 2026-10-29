@@ -3,7 +3,7 @@ name: build-admin-panel
 description: Skill ini membangun panel admin yang aman dan bisa diaudit - area terpisah, peran dengan hak minimum, 2FA wajib, konfirmasi ulang untuk aksi sensitif, audit log yang tidak bisa diubah, aksi lewat aturan bisnis yang sama dengan user, persetujuan dua orang untuk aksi berisiko tinggi, dan perlindungan data pribadi. Pakai saat membuat atau mengubah halaman/endpoint admin, menambah peran admin, aksi admin atas uang/akun/pengaturan, atau melihat dan mengekspor data user.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -42,7 +42,10 @@ Halaman/endpoint admin, peran admin, aksi admin atas uang/akun/pengaturan, melih
 
 ### 2. Peran dengan hak minimum [OWASP Authorization]
 
-Contoh pembagian (sesuaikan proyek):
+Wajib: hak dipisah sehingga satu akun admin yang dibobol **tidak bisa sekaligus** mengubah uang, mengubah
+peran, dan mengubah pengaturan teknis. Berapa peran dan namanya bebas.
+
+Contoh bentuk (sesuaikan proyek):
 
 | Peran | Boleh |
 |---|---|
@@ -55,6 +58,9 @@ Contoh pembagian (sesuaikan proyek):
   request.
 - Jumlah `superadmin` sesedikit mungkin, tapi minimal dua orang supaya tidak terkunci.
 - Admin tidak bisa menaikkan perannya sendiri.
+- Proyek kecil dengan satu-dua admin boleh memakai dua peran (`admin`, `superadmin`), asal aksi uang dan
+  peran memakai step-up (aturan 3) dan audit (aturan 5). Pembagian peran yang lebih rinci dicatat sebagai
+  *utang* untuk saat admin bertambah.
 
 ### 3. 2FA dan konfirmasi ulang
 
@@ -84,7 +90,10 @@ Setiap aksi tulis admin mencatat:
 
 - Tabel audit **hanya bisa ditambah**: user database aplikasi tidak punya hak `UPDATE`/`DELETE`
   (`change-database`).
-- Disimpan lama (mis. ≥ 1 tahun), terlihat oleh `superadmin`, tidak bisa disunting dari panel.
+- **Wajib** disimpan minimal 1 tahun untuk aksi uang dan peran (sengketa pembayaran dan investigasi sering
+  datang berbulan-bulan kemudian). Penghapusan otomatis yang lebih cepat dari itu adalah pelanggaran berat
+  (prioritas data dan uang), bukan kerapian. Aksi lain boleh lebih pendek, ditulis di PROJECT.md.
+- Terlihat oleh `superadmin`, tidak bisa disunting dari panel.
 - Ditulis di transaksi yang sama dengan aksinya: aksi berhasil tanpa audit tidak boleh terjadi.
 
 ### 6. Aksi berbahaya

@@ -16,6 +16,9 @@ Aturan menulis skill (hapus komentar ini di skill jadi):
 - SKILL.md di bawah 500 baris. Detail per stack ke references/<stack>.md (satu tingkat saja).
 - Setiap aturan wajib punya sumber di bagian Sumber.
 - Bahasa sederhana; istilah teknis dijelaskan sekali saat pertama muncul.
+- Wajib vs contoh: isi "Aturan wajib" dan "Larangan" adalah prinsip yang berlaku di semua proyek. Nama
+  folder/file, format, atau alat tertentu ditulis di baris "Contoh bentuk:" supaya jelas boleh diganti.
+  Kalau satu hal memang harus persis begitu (mis. algoritma hash), tulis di aturan, bukan di contoh.
 -->
 
 # Judul skill
@@ -45,6 +48,8 @@ Yang harus dibaca dari repo proyek sebelum mulai. Kalau tidak ada, **tanya user*
 ## Aturan wajib
 
 - Aturan yang tidak boleh dilanggar. [sumber]
+
+Contoh bentuk: cara/nama yang sudah diuji; proyek boleh memakai bentuk lain yang memenuhi aturan di atas.
 
 ## Larangan
 

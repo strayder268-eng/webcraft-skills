@@ -3,7 +3,7 @@ name: write-tests
 description: Skill ini menulis test yang benar-benar menjaga perilaku - pembagian unit, integrasi, dan end-to-end, apa yang wajib diuji (alur utama, error, izin, uang, bersamaan), test yang stabil dan tidak bergantung waktu/jaringan, data test yang bersih, penanganan test tidak stabil, dan menjalankannya di CI. Pakai saat menambah fitur, memperbaiki bug, mengubah kode yang belum punya test, menulis test database/API/UI/browser, atau saat test gagal acak.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -35,6 +35,11 @@ Setiap fitur baru (`build-feature`), setiap bug (`fix-bug`), sebelum merapikan k
 
 End-to-end hanya untuk alur yang kalau rusak langsung merugikan: daftar/login, pembayaran/top-up, fitur
 utama produk.
+
+Contoh bentuk: alat di `references/` (Vitest, Playwright, `go test`). Proyek yang sudah memakai test runner
+lain (mis. `node --test`, Jest) tetap memakainya sebagai *konvensi*; yang wajib adalah tiga tingkat ini dan
+kasus di aturan 2. Proyek yang belum punya test end-to-end sama sekali mencatatnya sebagai *utang*; menambah
+alatnya butuh ADR (`CATALOG.md`).
 
 ### 2. Yang wajib diuji
 

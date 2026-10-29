@@ -3,7 +3,7 @@ name: implement-auth
 description: Skill ini membuat fitur akun yang aman - daftar, login (email+sandi, Google, Telegram, atau penyedia OpenID Connect lain), sesi dan cookie, logout, reset sandi, verifikasi email, 2FA/TOTP, konfirmasi ulang untuk aksi sensitif, peran dan izin, kunci API, JWT, serta pencegahan CSRF dan penebakan akun. Pakai saat menambah atau mengubah login, pendaftaran, sesi, lupa sandi, 2FA, peran user/admin, halaman yang wajib login, atau menghubungkan akun ke Google/Telegram, menerbitkan kunci API, atau memakai JWT.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -77,6 +77,10 @@ pengiriman email/OTP (`send-notifications`).
   dikirim lewat cookie. Token tidak disimpan di `localStorage`.
 - Cookie: `HttpOnly`, `Secure`, `SameSite=Lax` (`Strict` untuk area admin), `Path=/`, nama berawalan
   `__Host-`, tanpa atribut `Domain`.
+- Kalau login memang harus berlaku di beberapa subdomain (mis. `app.` dan `api.`), cookie butuh `Domain` dan
+  tidak bisa memakai `__Host-`: pakai awalan `__Secure-`, catat di ADR, dan perlakukan **semua** subdomain
+  domain itu sebagai tepercaya (subdomain mana pun bisa membaca/menimpa cookie itu). Area admin tetap
+  `__Host-` di host-nya sendiri.
 - ID sesi **diganti** saat login dan saat peran/izin berubah.
 - Ada batas waktu tidak aktif dan batas waktu total. Area uang/admin mengikuti NIST AAL2: total ≤ 24 jam,
   tidak aktif ≤ 1 jam. Area biasa boleh lebih panjang ("ingat saya"), dicatat di ADR.

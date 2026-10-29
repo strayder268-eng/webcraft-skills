@@ -3,7 +3,7 @@ name: start-project
 description: Skill ini memulai proyek web dari nol (wawancara kebutuhan, memilih stack, membuat struktur dan file proyek, menyambungkan frontend-API-database pertama kali) atau memasang webcraft-skills ke proyek yang sudah ada (membaca repo, menulis file proyek, mengaudit ketidaksesuaian). Pakai saat user bilang "bikin web/aplikasi baru", "mulai proyek", atau saat proyek belum punya docs/PROJECT.md.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -91,29 +91,56 @@ Lalu laporkan ke user: apa yang sudah ada, cara menjalankan, fitur pertama yang 
 
 ### 1. Baca dulu, jangan ubah apa pun
 
-README, manifest dependensi, struktur folder, config Docker/CI, dokumen yang ada, riwayat git singkat.
+README, manifest dependensi, struktur folder, config Docker/CI, **semua** dokumen di `docs/`, file
+`AGENTS.md` di mana pun (root dan subfolder), riwayat git singkat.
 
 ### 2. Tulis `docs/PROJECT.md`
 
 Dari `assets/PROJECT.md`, berisi **fakta yang ditemukan**. Yang tidak bisa dipastikan ditulis "belum
 diketahui" dan ditanyakan ke user.
 
+- **Sumber bertentangan** (README bilang port 8080, compose memakai 8180): tulis yang dipakai kode/config yang
+  berjalan; dokumen yang salah masuk audit sebagai temuan `write-docs`.
+- **Keputusan lama** yang belum berbentuk ADR (spek, catatan desain): rujuk dokumen itu di PROJECT.md. ADR
+  baru hanya dibuat saat keputusan itu diubah (`build-feature` langkah 3); tidak perlu menulis ulang ADR untuk
+  keputusan masa lalu.
+- **Dikelola di luar repo**: konfigurasi yang ada di platform (hosting, CDN, DNS, penyedia email) dicatat di
+  bagian itu: apa, di mana, siapa yang punya akses. Audit menandainya "cek manual oleh user", bukan menebak.
+
 ### 3. `AGENTS.md`
 
-Kalau sudah ada, **pertahankan isinya** dan tambahkan bagian webcraft-skills. Kalau belum, buat dari
-`assets/AGENTS.md`.
+Kalau `AGENTS.md` root sudah ada, **pertahankan isinya** dan tambahkan bagian webcraft-skills. Kalau belum,
+buat dari `assets/AGENTS.md`. `AGENTS.md` di subfolder (mis. buatan framework) dibiarkan dan dirujuk dari root.
 
-### 4. Audit
+### 4. Konvensi
+
+Proyek lama hampir selalu punya bentuk sendiri yang berbeda dari "Contoh bentuk" skill (nama folder, format
+kamus, alat migrasi, alat test, nama file dokumen). Untuk setiap perbedaan, isi tabel *Konvensi* di
+PROJECT.md dengan salah satu status:
+
+| Status | Artinya | Contoh |
+|---|---|---|
+| **konvensi** | bentuknya beda, tapi **aturan wajib terpenuhi**. Dipakai terus; kode baru mengikuti bentuk ini. Bukan temuan audit. | `web/app` tanpa `src/`; kamus TypeScript bertipe; `node --test` |
+| **utang** | bentuknya **melanggar** aturan wajib. Masuk audit. Kode baru wajib ikut aturan; kode lama dirapikan saat disentuh atau lewat tugas sendiri. | `<button>` mentah di 35 halaman lama; satu `schema.sql` yang berisi `DROP` |
+| **perlu keputusan** | memperbaikinya mengubah alat atau kontrak (butuh ADR + persetujuan user). | pindah ke alat migrasi bernomor; ganti format error API |
+
+### 5. Audit
 
 Bandingkan proyek dengan skill yang relevan dan tulis `docs/audit-webcraft.md`:
 
-| Skill | Temuan | Bukti (file:baris) | Risiko | Prioritas |
+| Skill | Aturan (nomor) | Bukti (file:baris) | Risiko | Prioritas |
 |---|---|---|---|---|
 
-Urutan prioritas: (1) keamanan dan rahasia, (2) data dan uang, (3) bug yang dirasakan pengguna, (4) struktur
-dan kerapian.
+- Urutan prioritas: (1) keamanan dan rahasia, (2) data dan uang, (3) bug yang dirasakan pengguna, (4) struktur
+  dan kerapian.
+- Yang berstatus *konvensi* bukan temuan.
+- **Semua** file di `docs/` diperiksa: dokumen yang menyebut fitur, halaman, atau layanan yang sudah tidak ada
+  adalah temuan `write-docs` (dokumen usang lebih berbahaya daripada tidak ada).
+- Hal yang hanya bisa dipastikan dengan menjalankan aplikasi (waktu respons, jumlah query per request, kontras
+  warna, hasil `npm audit`/`govulncheck`) ditulis **"perlu diukur"** beserta cara mengukurnya, bukan ditebak.
+- Tambahkan bagian *Yang sudah sesuai*, supaya laporan tidak hanya daftar kesalahan.
 
-### 5. Laporan
+### 6. Laporan
 
 Ringkas ke user dalam bahasa sederhana. **Tidak ada perbaikan di langkah ini.** Setiap perbaikan dikerjakan
 kemudian lewat `fix-bug` atau `build-feature`, satu per satu.
@@ -135,8 +162,10 @@ Mode A:
 
 Mode B:
 
-- [ ] `docs/PROJECT.md` hanya berisi fakta; yang belum pasti ditandai.
-- [ ] `docs/audit-webcraft.md` setiap temuan punya bukti file:baris.
+- [ ] `docs/PROJECT.md` hanya berisi fakta; yang belum pasti ditandai; tabel *Konvensi* dan *Dikelola di
+  luar repo* terisi.
+- [ ] `docs/audit-webcraft.md` setiap temuan punya bukti file:baris; semua file `docs/` sudah diperiksa;
+  yang butuh pengukuran ditandai "perlu diukur".
 - [ ] Tidak ada perubahan kode.
 
 ## Aset

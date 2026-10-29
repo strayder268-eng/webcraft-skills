@@ -24,6 +24,10 @@ src/proxy.ts                    tanpa awalan bahasa → arahkan ke bahasa piliha
 Semua file route ada di bawah `app/[lang]/`. Daftar bahasa untuk halaman statis lewat `generateStaticParams`
 di layout. [Next.js: Internationalization]
 
+Bentuk lain yang sah: route tanpa `[lang]`, dan `proxy.ts` yang me-*rewrite* `/en/...` ke route yang sama
+sambil menaruh bahasa di header/cookie. Syaratnya tetap: bahasa terlihat di URL (aturan 6), `<html lang>`
+benar, dan hreflang terpasang. Catat bentuk yang dipakai di *Konvensi* `docs/PROJECT.md`.
+
 ## Memuat kamus (server)
 
 ```ts

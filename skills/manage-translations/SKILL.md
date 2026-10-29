@@ -3,7 +3,7 @@ name: manage-translations
 description: Skill ini mengatur semua teks yang tampil ke user lewat kamus terjemahan - struktur file per bahasa, nama kunci, placeholder dan bentuk jamak, format angka/uang/tanggal per bahasa, bahasa di URL dan SEO, terjemahan kode error API, serta pengecekan kunci yang hilang. Pakai saat menambah atau mengubah teks UI, email, atau notifikasi, menambah bahasa baru, menampilkan uang/tanggal/angka, atau saat ada teks yang belum diterjemahkan.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -52,6 +52,11 @@ messages/
 - Daftar bahasa yang didukung ditulis **di satu tempat** di kode, bersama bahasa bawaan.
 - Menambah bahasa = salin folder bahasa bawaan → terjemahkan → tambahkan ke daftar bahasa. Tidak ada kode lain
   yang perlu diubah.
+
+Contoh bentuk: file JSON per bahasa per fitur seperti di atas. Bentuk lain sah kalau tetap memenuhi tiga poin
+di atas, mis. kamus TypeScript bertipe (`dict/<fitur>.ts` yang memaksa kunci setiap bahasa sama dengan bahasa
+bawaan). Yang **bukan** konvensi sah: daftar bahasa ditulis ulang di banyak file (`'en' | 'id'` tersebar),
+karena menambah bahasa jadi harus mengubah banyak kode.
 
 ### 3. Nama kunci
 

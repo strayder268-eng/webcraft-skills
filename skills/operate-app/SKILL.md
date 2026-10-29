@@ -3,7 +3,7 @@ name: operate-app
 description: Skill ini menjaga aplikasi yang sudah berjalan - backup terenkripsi yang rutin diuji pulihkan, pemantauan uptime dan sumber daya, log dan peringatan yang berguna, penanganan insiden (termasuk kebocoran data), postmortem, runbook, serta perawatan rutin (update, rotasi rahasia, akses). Pakai saat menyiapkan atau memeriksa backup, memulihkan data, memasang pemantauan atau alert, server down atau lambat, disk penuh, sertifikat bermasalah, dugaan peretasan, atau menulis runbook.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -23,17 +23,27 @@ Backup dan pemulihan, pemantauan dan alert, gangguan/insiden, runbook, perawatan
 
 ## Data proyek yang dibutuhkan
 
-- Target **RPO** (berapa lama data boleh hilang, mis. 24 jam) dan **RTO** (berapa lama boleh mati, mis.
-  4 jam). Belum ada → tanyakan ke user dengan rekomendasi, catat di `docs/PROJECT.md`.
-- Ke mana alert dikirim dan siapa yang membacanya.
+- Target **RPO** (berapa lama data boleh hilang) dan **RTO** (berapa lama boleh mati). Belum ada → tanyakan ke
+  user dengan rekomendasi, catat di `docs/PROJECT.md`. Rekomendasi awal untuk proyek kecil/satu pengelola:
+
+  | Jenis proyek | RPO | RTO | Artinya |
+  |---|---|---|---|
+  | tanpa uang (blog, profil, alat gratis) | 24 jam | 24 jam | backup harian cukup |
+  | ada saldo/pembayaran | 24 jam + catatan gateway | 4 jam | backup harian; transaksi sejak backup terakhir dipulihkan dari laporan gateway pembayaran |
+  | transaksi banyak per jam | ≤ 15 menit | 1-4 jam | butuh arsip WAL/PITR (ADR) |
+
+  Angka boleh diubah user; yang penting tertulis, supaya frekuensi backup dan uji pulih punya dasar.
+- Ke mana alert dikirim dan siapa yang membacanya. Proyek satu pengelola: satu kanal yang pasti dibaca di HP
+  (mis. bot Telegram atau email pribadi), bukan dashboard yang harus dibuka.
 - **Pemulihan data, perubahan di server produksi, dan pemberitahuan ke user selalu dengan izin user.**
 
 ## Aturan wajib
 
 ### 1. Backup [Google SRE: Data integrity]
 
-- Yang di-backup: database **dan** file unggahan. Config/rahasia disimpan terpisah di pengelola sandi milik
-  admin, tidak bersama backup.
+- Yang di-backup: database **dan** file unggahan (kalau file disimpan di dalam database, backup database
+  sudah mencakupnya; ukurannya diawasi). Config/rahasia disimpan terpisah di pengelola sandi milik admin, tidak
+  bersama backup.
 - Frekuensi mengikuti RPO. Otomatis (cron/timer), bukan manual.
 - **Terenkripsi** sebelum keluar server: server hanya memegang **kunci publik**, kunci privat disimpan offline
   oleh admin.

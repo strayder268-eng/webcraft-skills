@@ -3,7 +3,7 @@ name: design-api
 description: Skill ini merancang dan menjaga kontrak API HTTP/JSON antara frontend dan backend - URL, method, status code, format error seragam (RFC 9457), validasi input, izin per endpoint, bentuk data uang/waktu/ID, pagination, idempotency, rate limit, kompatibilitas versi, serta SSE/WebSocket. Pakai saat menambah atau mengubah endpoint, mengubah bentuk request/response, memanggil API dari frontend, atau menyeragamkan pesan error.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -40,7 +40,13 @@ request, response sukses, kemungkinan error.
 
 - Kata benda jamak, huruf kecil, kebab-case: `/api/v1/api-keys/{id}`.
 - Aksi yang bukan buat/baca/ubah/hapus: `POST /api/v1/orders/{id}/cancel`.
-- API untuk pihak luar diberi versi di path (`/v1`). Konsisten di semua endpoint.
+- API untuk pihak luar (dipanggil program/klien di luar proyek) diberi versi di path (`/v1`). Konsisten di
+  semua endpoint. API internal yang hanya dipanggil frontend proyek sendiri boleh tanpa versi, karena keduanya
+  dirilis bersama.
+
+**Kontrak pihak lain.** Kalau API sengaja meniru kontrak layanan lain supaya SDK-nya bisa dipakai (mis.
+kompatibel OpenAI, S3), bentuk URL, error, dan data **mengikuti kontrak itu**, bukan aturan 2, 5, 8, dan 9 di
+skill ini. Catat di ADR kontrak mana yang diikuti. Aturan keamanan (6, 7, 10, 11) tetap berlaku.
 
 ### 3. Method [RFC 9110]
 
@@ -71,7 +77,8 @@ request, response sukses, kemungkinan error.
 
 ### 5. Format error seragam [RFC 9457]
 
-Semua error memakai `Content-Type: application/problem+json`:
+Satu format error untuk semua endpoint. Proyek baru memakai RFC 9457
+(`Content-Type: application/problem+json`):
 
 ```json
 {
@@ -89,6 +96,11 @@ Semua error memakai `Content-Type: application/problem+json`:
 - `errors`: daftar kesalahan per field, untuk validasi form.
 - **Tidak pernah** berisi stack trace, query SQL, nama tabel, path file, atau pesan library. [RFC 9457 §5]
 - Error 500 selalu generik ke pemanggil; detailnya ke log server dengan ID request yang sama.
+
+Proyek lama yang sudah memakai **satu** format lain secara seragam (mis. `{"error":{"code","message"}}`)
+mencatatnya sebagai *konvensi*, asal memenuhi tiga syarat di atas: ada `code` tetap, ada kesalahan per field
+untuk form, tidak membocorkan isi server. Kalau tidak memenuhi, itu *utang*. Mengganti format adalah
+perubahan yang merusak (aturan 12): butuh ADR.
 
 ### 6. Validasi di server [OWASP Input Validation]
 
@@ -121,8 +133,10 @@ Semua error memakai `Content-Type: application/problem+json`:
 ### 9. Daftar data
 
 - **Wajib pagination.** `limit` dengan nilai bawaan (mis. 20) dan batas maksimum (mis. 100).
-- Data yang terus bertambah memakai **cursor**: response berisi `next_cursor`, kosong kalau habis. Offset
-  besar makin lambat. [Use The Index, Luke: No offset]
+- Data yang terus bertambah tanpa batas (riwayat transaksi, log, feed) memakai **cursor**: response berisi
+  `next_cursor`, kosong kalau habis. Offset besar makin lambat. [Use The Index, Luke: No offset]
+- Offset (`page`, `per_page`) boleh untuk daftar yang kecil atau halaman admin bernomor, selama `limit`
+  dibatasi. Kalau daftar itu nanti tumbuh dan melambat (diukur, `build-backend` aturan 12), pindah ke cursor.
 - Filter dan urutan hanya dari daftar field yang diizinkan.
 
 ```json

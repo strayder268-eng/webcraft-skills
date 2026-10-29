@@ -3,7 +3,7 @@ name: structure-project
 description: Skill ini menentukan letak setiap file dan folder, batas antar modul, serta cara menyimpan config dan rahasia, supaya proyek tidak semrawut saat fitur bertambah. Pakai saat membuat struktur proyek baru, menambah file/komponen/modul dan bingung menaruhnya di mana, merapikan folder yang berantakan, memecah file yang terlalu besar, atau menambah environment variable dan rahasia.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -52,6 +52,11 @@ Berlaku untuk komponen UI, fungsi, tipe, apa pun:
   menyalin. [keputusan webcraft]
 - Folder bersama hanya berisi hal yang benar-benar umum: tidak mengambil data sendiri, tidak berisi teks atau
   aturan bisnis fitur tertentu. [keputusan webcraft]
+- **Jangan naik tingkat "jaga-jaga".** Selama baru dipakai satu tempat, tetap di sebelah pemakainya.
+
+Contoh bentuk: nama folder per stack di `references/` (mis. `src/features/`, `src/components/ui/`). Proyek
+boleh memakai nama lain (mis. `web/components/<fitur>/`, `web/components/ui/` tanpa `src/`) asal tiga tingkat
+ini terpenuhi dan namanya tercatat di *Konvensi* `docs/PROJECT.md`.
 
 ### 3. Arah ketergantungan satu arah
 
@@ -73,8 +78,8 @@ Ini patokan, bukan hukum; yang penting satu file satu tanggung jawab. [keputusan
 ### 6. Nama
 
 - Ikuti konvensi bahasa/framework (lihat `references/`).
-- Nama menjelaskan isi. **Dilarang** folder keranjang sampah seperti `utils/`, `helpers/`, `common/`, `misc/`
-  tanpa nama yang spesifik. Pakai nama yang jelas: `format-money.ts`, `internal/platform/db`.
+- Nama menjelaskan isi. **Dilarang** folder atau file keranjang sampah seperti `utils/`, `utils.ts`,
+  `helpers/`, `common/`, `misc/` tanpa nama yang spesifik. Pakai nama yang jelas: `format-money.ts`, `internal/platform/db`.
   [Go blog: Package names]
 
 ### 7. Config dan rahasia

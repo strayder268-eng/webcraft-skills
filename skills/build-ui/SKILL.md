@@ -3,7 +3,7 @@ name: build-ui
 description: Skill ini membuat komponen, halaman, dan form yang konsisten dengan sistem desain - pemakaian ulang komponen dasar, varian lewat props, keadaan memuat/kosong/error, form yang benar, aksesibilitas (WCAG 2.2 AA), responsif, performa (Core Web Vitals), dan SEO. Pakai saat membuat atau mengubah komponen UI, halaman, form, tabel/daftar, dialog, atau saat tampilan berantakan, lambat, tidak rapi di HP, atau sulit dipakai dengan keyboard.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -40,7 +40,9 @@ keyboard dan pembaca layar), enak di HP, dan cepat dibuka.
   Checkbox, Field (label + bantuan + error), Dialog, Toast, Table/List, Badge, Skeleton, EmptyState,
   ErrorState, Pagination.
 - Elemen HTML interaktif mentah (`<button>`, `<input>`, `<select>`) **hanya** dipakai di dalam komponen dasar.
-  Halaman dan fitur memakai komponen dasar.
+  Halaman dan fitur memakai komponen dasar. Di proyek lama, halaman yang masih memakai elemen mentah adalah
+  *utang*: kode **baru** wajib memakai komponen dasar; halaman lama dipindah saat halaman itu disentuh atau
+  lewat tugas rapi-rapi tersendiri.
 - **Hanya token semantik** untuk warna, ukuran, jarak (`setup-design-system`).
 - Komponen dasar tidak mengambil data dan tidak berisi teks bisnis; teks datang lewat props.
 - Komponen baru dasar dicatat di tabel komponen `docs/DESIGN.md`.
@@ -102,7 +104,9 @@ Setiap bagian yang memuat data punya **empat keadaan**:
 Target pada persentil ke-75 pengunjung: **LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1**.
 
 - Gambar: ukuran (lebar/tinggi) selalu ditentukan, format modern, `lazy` untuk yang di bawah layar, gambar
-  utama di atas layar tidak di-lazy.
+  utama di atas layar tidak di-lazy. Komponen gambar framework (mis. `next/image`) dipakai untuk foto dan
+  gambar konten; ikon/logo kecil statis (SVG, bendera) dan gambar dari data (mis. QR yang dibuat di browser)
+  boleh `<img>` biasa, asal lebar/tingginya tertulis.
 - Font di-host sendiri dengan `font-display: swap`; jumlah ketebalan seperlunya.
 - JavaScript di browser seminimal mungkin; komponen berat dimuat saat dibutuhkan.
 - Ruang untuk isi yang dimuat belakangan disiapkan (skeleton, ukuran tetap) supaya tidak melompat.

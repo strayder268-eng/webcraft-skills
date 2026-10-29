@@ -3,7 +3,7 @@ name: start-here
 description: Skill ini adalah pintu masuk webcraft-skills. Isinya peta bagian web (frontend, API, backend, database, infra), letak file proyek, aturan kerja umum, dan cara memilih skill yang tepat. Pakai saat permintaan user masih umum atau berbahasa awam ("bikin web", "tambah login", "webnya error", "mau deploy"), saat belum jelas skill mana yang cocok, atau saat mulai bekerja di proyek yang memakai webcraft-skills.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -55,8 +55,9 @@ Data khas proyek tidak ada di skill, tapi di repo proyek. Semua skill membaca da
 | `docs/features/<fitur>.md` | spek satu fitur | `build-feature` |
 | `docs/decisions/NNNN-judul.md` | catatan keputusan penting (ADR) | `build-feature` |
 
-Kalau `docs/PROJECT.md` belum ada, jalankan `start-project` dulu. Untuk proyek lama, `start-project` memakai
-mode "proyek yang sudah ada".
+Kalau `docs/PROJECT.md` belum ada, jalankan `start-project` dulu: mode A kalau repo belum berisi kode, mode B
+("proyek yang sudah ada") kalau sudah. `AGENTS.md` di subfolder (mis. buatan framework) tidak menggantikan
+`AGENTS.md` root.
 
 ## Memilih skill
 
@@ -95,10 +96,21 @@ Satu permintaan bisa menyentuh beberapa skill. Pakai `build-feature` sebagai pen
 7. **Jujur saat melapor.** Pisahkan "sudah dicek dan berhasil" dari "belum dicek". Jangan bilang selesai kalau
    test atau pengecekan belum dijalankan.
 8. **Bahasa sederhana ke user.** Istilah teknis dijelaskan sekali, singkat.
+9. **Wajib vs contoh.** "Aturan wajib" dan "Larangan" di setiap skill berlaku di semua proyek. Baris
+   "Contoh bentuk:" dan isi `references/` boleh diganti bentuk lain yang tercatat di bagian *Konvensi*
+   `docs/PROJECT.md`. Bentuk proyek yang berbeda dari contoh **bukan** pelanggaran selama aturannya terpenuhi.
+10. **Kalau sumber bertentangan** (README vs config, dua dokumen berbeda): yang benar adalah kode/config yang
+    benar-benar berjalan. Dokumen yang salah dicatat sebagai temuan `write-docs`. Kalau dari kode pun tidak
+    jelas, tanya user.
+11. **Kode baru ikut skill, kode lama tidak dibongkar diam-diam.** Bagian proyek yang tercatat sebagai *utang*
+    dirapikan saat bagian itu disentuh atau lewat tugas tersendiri, bukan "sekalian" di tugas lain.
 
 ## Langkah
 
-1. Baca `AGENTS.md` dan `docs/PROJECT.md` proyek. Kalau tidak ada: tawarkan `start-project`.
+1. Cek `AGENTS.md` (root) dan `docs/PROJECT.md`.
+   - Ada: baca keduanya, termasuk bagian *Konvensi* dan *Dikelola di luar repo*.
+   - Tidak ada: jangan mulai skill lain dulu. Jalankan `start-project` (mode A untuk repo kosong, mode B untuk
+     repo yang sudah berisi kode). Pengecualian: user hanya bertanya, tidak meminta perubahan.
 2. Ulangi permintaan user dengan kalimat sederhana, sebut bagian web yang tersentuh (pakai peta di atas).
 3. Pilih skill dari tabel. Kalau tidak ada yang cocok, katakan terus terang dan kerjakan dengan aturan kerja di
    atas.

@@ -3,7 +3,7 @@ name: setup-design-system
 description: Skill ini menetapkan identitas visual proyek sebagai token desain (warna, font, ukuran teks, spasi, radius, bayangan, gerak, tema terang/gelap) di satu sumber, mencatatnya di docs/DESIGN.md, dan memasang pengecekan supaya UI hanya memakai token. Pakai saat memulai tampilan proyek, mengganti tema/warna/font/identitas, menambah mode gelap, atau saat tampilan tidak konsisten karena warna dan ukuran ditulis sembarangan.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -68,7 +68,7 @@ Mode gelap = **nilai lapis 2 diganti**, nama tetap. Komponen tidak perlu berubah
 |---|---|
 | Warna | satu aksen merek + netral + 4 warna status |
 | Font | maksimal 2 keluarga (teks + monospace opsional) |
-| Ukuran teks | skala tetap, mis. 12, 14, 16, 18, 20, 24, 30, 36, 48 px; teks isi minimal 16 px, tinggi baris ±1.5 |
+| Ukuran teks | skala tetap, mis. 12, 14, 16, 18, 20, 24, 30, 36, 48 px; **teks bacaan** (paragraf, isi artikel/dokumen) minimal 16 px, tinggi baris ±1.5; label, tabel padat, dan keterangan boleh 12-14 px |
 | Spasi | kelipatan 4 px |
 | Radius | 2-3 nilai (mis. kecil untuk input, sedang untuk kartu, penuh untuk pil) |
 | Bayangan | 2-3 tingkat |
@@ -98,7 +98,9 @@ Cek di mode terang **dan** gelap. Catat rasionya di `docs/DESIGN.md`.
 
 ### 6. Catat
 
-- Isi `docs/DESIGN.md` dari `assets/DESIGN.md`.
+- Isi `docs/DESIGN.md` dari `assets/DESIGN.md`. Kalau proyek sudah punya dokumen desain dengan nama lain
+  (mis. `docs/DESIGN-SYSTEM.md`), **jangan membuat file kedua**: lengkapi file itu dengan bagian yang kurang
+  dari aset, dan catat namanya di *Konvensi* `docs/PROJECT.md`. Satu topik, satu dokumen (`write-docs`).
 - Identitas pertama dan setiap penggantian identitas dicatat sebagai ADR (`build-feature`).
 - Buat satu halaman contoh khusus pengembangan yang menampilkan semua token dan komponen dasar, supaya user
   bisa melihat dan menyetujui. Halaman ini tidak tampil di produksi.

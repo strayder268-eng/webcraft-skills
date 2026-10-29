@@ -3,7 +3,7 @@ name: write-docs
 description: Skill ini menulis dan merawat dokumentasi yang selalu cocok dengan kode - README, ringkasan proyek, dokumentasi API (OpenAPI), changelog, panduan untuk pengguna, dan runbook - dengan pembagian jenis dokumen Diátaxis, bahasa sederhana, contoh yang benar-benar dijalankan, dan diperbarui di commit yang sama dengan kodenya. Pakai saat membuat atau mengubah README, menambah/mengubah endpoint API, merilis perubahan, menulis panduan pemakaian, atau saat dokumentasi sudah tidak sesuai kode.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -39,7 +39,7 @@ Satu dokumen untuk satu kebutuhan; jangan dicampur.
 |---|---|---|
 | README | `README.md` | apa ini, untuk siapa, cara menjalankan lokal (satu perintah), cara test, tautan ke dokumen lain, lisensi |
 | Ringkasan proyek | `docs/PROJECT.md` | lihat `start-project` |
-| Desain | `docs/DESIGN.md` | lihat `setup-design-system` |
+| Desain | `docs/DESIGN.md` (atau nama yang tercatat di *Konvensi*) | lihat `setup-design-system` |
 | Fitur dan keputusan | `docs/features/`, `docs/decisions/` | lihat `build-feature` |
 | API | `docs/api/openapi.yaml` (+ halaman panduan) | aturan 4 |
 | Runbook | `docs/runbooks/` | lihat `operate-app` |
@@ -52,7 +52,10 @@ Informasi ditulis **di satu tempat**; tempat lain menautkan, tidak menyalin.
 
 - Dokumen diperbarui **di commit yang sama** dengan perubahan kodenya.
 - Setiap perintah dan contoh di dokumen **sudah dijalankan** dan berhasil. README dicoba dari clone bersih.
-- Dokumen usang lebih berbahaya daripada tidak ada: perbarui atau hapus, jangan dibiarkan.
+- Dokumen usang lebih berbahaya daripada tidak ada: perbarui atau hapus, jangan dibiarkan. Saat audit atau
+  saat fitur/halaman dihapus, periksa **semua** file di `docs/` (bukan hanya yang namanya cocok): dokumen yang
+  masih menyebut fitur, halaman, atau layanan yang sudah tidak ada diperbarui, atau diberi tanda **ARSIP** di
+  baris pertama dan dipindah ke `docs/archive/`. Menghapus dokumen butuh izin user.
 - Tanggal ditulis lengkap (2026-10-29), bukan "kemarin" atau "minggu depan".
 - Tidak ada rahasia: pakai contoh (`sk-…`, `<TOKEN>`), dan env cukup disebut namanya.
 

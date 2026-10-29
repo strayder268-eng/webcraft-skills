@@ -5,6 +5,11 @@ Berlaku untuk Next.js 15+ dengan App Router. Untuk versi yang terpasang, dokumen
 
 ## Struktur
 
+Ini **contoh bentuk** untuk proyek baru. `src/` opsional di Next.js: proyek tanpa `src/` (`web/app/`,
+`web/components/`, `web/lib/`) sah, asal tiga tingkat penempatan terpenuhi. Proyek lama yang belum punya
+`features/` boleh memakai `components/<fitur>/` sebagai folder fitur (satu fitur satu folder). Bentuk yang
+dipilih dicatat di *Konvensi* `docs/PROJECT.md`; kode baru mengikuti bentuk itu, bukan mencampur dua bentuk.
+
 ```
 web/
   src/

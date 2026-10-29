@@ -3,7 +3,7 @@ name: secure-feature
 description: Skill ini memeriksa keamanan sebelum dan sesudah coding - threat model ringan (STRIDE), checklist OWASP Top 10:2025, header keamanan dan CSP, file dan path traversal, SSRF, injeksi selain SQL, bot dan penyalahgunaan, fitur AI/LLM, pemilihan library, pemindaian rahasia, serta perlindungan data pribadi (UU PDP). Pakai saat fitur menyentuh login, uang, data pribadi, file, admin, model AI, atau layanan pihak ketiga, saat menambah atau memperbarui library, saat ada dugaan celah, atau sebelum rilis.
 license: MIT
 metadata:
-  version: "0.1"
+  version: "0.2"
   language: id
   status: draf
 ---
@@ -78,6 +78,10 @@ Jawab empat pertanyaan, hasilnya ditulis di bagian "Keamanan" spek fitur:
 
 `X-XSS-Protection` tidak dipasang (atau `0`). CSP baru dipasang dulu dalam mode `Report-Only`, diamati, lalu
 ditegakkan.
+
+Header boleh dipasang aplikasi, reverse proxy, atau platform hosting/CDN; yang wajib adalah header itu **sampai
+ke browser**. Karena itu yang dicek adalah domain yang berjalan (`curl -I https://<domain>`), bukan hanya kode.
+Kalau dipasang di platform, catat di *Dikelola di luar repo* `docs/PROJECT.md`.
 
 ### 4. File: upload, unduh, arsip [OWASP File Upload]
 

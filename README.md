@@ -31,6 +31,10 @@ atau suruh agent membaca `README.md` ini dulu lalu mengikuti skill yang cocok.
 3. Kalau skill butuh data proyek yang belum ada (token desain, stack, keputusan), **tanya user**. Jangan mengarang.
 4. Kalau stack proyek belum ada di [CATALOG.md](CATALOG.md), beri tahu user. Jangan mengarang cara pakainya.
 5. Ada pilihan teknis: beri satu rekomendasi beserta alasannya, jangan lempar pilihan mentah ke user.
+6. **Wajib vs contoh.** Isi "Aturan wajib" dan "Larangan" berlaku di semua proyek. Baris **"Contoh bentuk:"**
+   dan seluruh isi `references/` adalah satu cara yang sudah diuji: proyek boleh memakai bentuk lain (nama
+   folder, format file, alat) asal aturannya terpenuhi dan bentuk itu tercatat di bagian *Konvensi* pada
+   `docs/PROJECT.md`.
 
 ## Indeks skill
 
