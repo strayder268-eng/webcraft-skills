@@ -3,7 +3,7 @@ name: build-backend
 description: Skill ini menulis logika server yang rapi dan tahan gangguan - pembagian lapisan, penanganan error, log terstruktur, batas waktu dan retry ke layanan luar, cache, pekerjaan latar/antrean, rate limit, penyimpanan kunci idempotency, health check, mati dengan rapi, dan mengukur serta memperbaiki performa. Pakai saat menulis atau mengubah logika backend, memanggil layanan luar, menambah cache atau Redis, membuat pekerjaan terjadwal/latar, menambah rate limit, menambah log, atau saat endpoint lambat/boros query.
 license: MIT
 metadata:
-  version: "0.5"
+  version: "0.6"
   language: id
   status: draf
 ---
@@ -111,7 +111,8 @@ Prioritas audit: P1.
 - Kunci batas: per user kalau sudah login, per IP kalau belum; endpoint login juga per akun yang dicoba.
 - IP diambil dari header proxy **hanya** kalau request datang dari proxy yang dipercaya.
 - Tentukan dan catat: kalau penyimpanan rate limit mati, endpoint sensitif (login, bayar) **menolak**
-  (gagal tertutup); endpoint biasa boleh tetap jalan.
+  (gagal tertutup); endpoint biasa boleh tetap jalan, kecuali proyek memutuskan semua endpoint ikut menolak
+  (`start-here` aturan 9).
 - Kelonggaran untuk pengembangan (mis. gagal terbuka di laptop) hanya lewat **env yang jelas namanya**, mati
   secara bawaan, dan ditolak saat start di produksi. Komentar "sementara untuk dev" tanpa saklar seperti itu
   adalah temuan.
@@ -130,6 +131,8 @@ Prioritas audit: P3.
 
 - `GET /healthz` (*liveness*): proses hidup. Ringan, tanpa cek database.
 - `GET /readyz` (*readiness*): siap melayani; cek koneksi database/Redis dengan timeout pendek.
+- Kalau keputusan proyek hanya memakai satu endpoint (misalnya `/healthz` yang juga mengecek Redis), ikuti
+  keputusan itu dan jangan menambah endpoint kedua diam-diam (`start-here` aturan 9).
 - Tidak membocorkan versi, config, atau detail error.
 
 ### 10. Mati dengan rapi

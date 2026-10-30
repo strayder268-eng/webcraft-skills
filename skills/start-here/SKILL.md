@@ -3,7 +3,7 @@ name: start-here
 description: Skill ini adalah pintu masuk webcraft-skills. Isinya peta bagian web (frontend, API, backend, database, infra), letak file proyek, aturan kerja umum, dan cara memilih skill yang tepat. Pakai saat permintaan user masih umum atau berbahasa awam ("bikin web", "tambah login", "webnya error", "mau deploy"), saat belum jelas skill mana yang cocok, atau saat mulai bekerja di proyek yang memakai webcraft-skills.
 license: MIT
 metadata:
-  version: "0.7"
+  version: "0.8"
   language: id
   status: draf
 ---
@@ -99,6 +99,11 @@ Satu permintaan bisa menyentuh beberapa skill. Pakai `build-feature` sebagai pen
 9. **Wajib vs contoh.** "Aturan wajib" dan "Larangan" di setiap skill berlaku di semua proyek. Baris
    "Contoh bentuk:" dan isi `references/` boleh diganti bentuk lain yang tercatat di bagian *Konvensi*
    `docs/PROJECT.md`. Bentuk proyek yang berbeda dari contoh **bukan** pelanggaran selama aturannya terpenuhi.
+
+   **Keputusan proyek menang atas bawaan skill.** Kalau spek, ADR, atau instruksi tugas dari user memutuskan
+   hal yang di skill hanya berupa bawaan (misalnya satu endpoint health saja, atau semua endpoint gagal
+   tertutup), ikuti keputusan proyek dan sebut perbedaannya di laporan. Keputusan proyek tidak boleh
+   melanggar bagian "Larangan" skill; kalau melanggar, tanyakan ke user sebelum mengerjakan.
 10. **Kalau sumber bertentangan**, percayai dengan urutan ini:
     1. kode yang dipakai: bisa dicapai dari entry point (`main`, pendaftaran route, file halaman) dan
        bagiannya ikut dibangun/dijalankan menurut config deploy. Kode yang tidak dipanggil dari mana pun adalah
@@ -145,6 +150,7 @@ Satu permintaan bisa menyentuh beberapa skill. Pakai `build-feature` sebagai pen
 - [ ] Skill yang dipakai disebutkan ke user.
 - [ ] Data yang kurang ditanyakan, tidak dikarang.
 - [ ] Laporan akhir memisahkan yang sudah dicek dan yang belum.
+- [ ] Laporan menyebut apakah indeks kode dipakai (aturan 12), dan kalau tidak, kenapa.
 
 ## Sumber
 

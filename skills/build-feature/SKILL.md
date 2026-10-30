@@ -3,7 +3,7 @@ name: build-feature
 description: Skill ini mengatur alur menambah atau mengubah fitur dari awal sampai selesai - rencana (spek fitur), catatan keputusan (ADR), urutan pengerjaan database ke API ke UI, test, review diri, cek nyata, commit, dan laporan. Pakai saat user minta fitur baru, halaman baru, perubahan alur, atau perubahan yang menyentuh lebih dari satu bagian web, juga saat perlu mencatat keputusan penting seperti menambah alat atau layanan baru.
 license: MIT
 metadata:
-  version: "0.8"
+  version: "0.9"
   language: id
   status: draf
 ---
@@ -53,8 +53,12 @@ Ukur dulu besarnya:
 - Fitur besar yang menyentuh login, uang, data pribadi, file, atau pihak luar: jalankan `secure-feature`
   sebelum rencana disetujui. Di tahap rencana, threat model dilakukan pada **desain** (alur, data, batas
   kepercayaan, keputusan pencegahan + test yang wajib); pemeriksaan kode dilakukan lagi setelah coding.
-- Tunjukkan rencana ke user dalam bahasa sederhana. **Jangan mulai coding sebelum disetujui.**
+- Tunjukkan rencana ke user dalam bahasa sederhana. **Jangan mulai coding sebelum disetujui.** Spek atau
+  instruksi tugas dari user yang sudah memuat rencana persis dihitung sebagai rencana yang disetujui.
 - Daftarkan fitur di `docs/features/README.md` (nama, satu baris kegunaan, status).
+- Tugas melarang menyentuh `docs/`, atau keputusannya sudah tercatat di spek proyek: jangan membuat file
+  spek, ADR, atau entri `docs/features/README.md`. Sebut dokumen yang jadi pegangan, lalu tulis keputusan
+  baru (kalau ada) di laporan supaya user bisa mencatatnya.
 
 ### 3. Catat keputusan penting (ADR)
 
@@ -114,12 +118,21 @@ Sebelum menyebut selesai, cek diff sendiri [Google: What to look for in a code r
 Jalankan aplikasi dan coba alurnya **seperti user**: di browser, ukuran HP dan desktop, alur berhasil dan
 gagal. Test lulus belum berarti fitur jalan.
 
+Aplikasi tidak bisa dijalankan karena larangan tugas (misalnya dilarang memakai database)? Tulis "cek nyata
+belum dilakukan" beserta alasannya di laporan. Test integrasi tidak menggantikan cek nyata.
+
 ### 8. Commit
 
 - Ikuti konvensi commit proyek kalau sudah ada. Kalau belum: Conventional Commits
   (`feat: …`, `fix: …`, `docs: …`, `refactor: …`, `test: …`; perubahan yang merusak kompatibilitas diberi
   `!`). [Conventional Commits]
 - Satu commit satu tujuan. Pesan menjelaskan **kenapa**, bukan hanya apa.
+- Commit hanya di branch tugas. Cek nama branch di perintah yang sama dengan commit, supaya commit batal
+  kalau branch berpindah:
+
+  ```bash
+  test "$(git branch --show-current)" = "dev/nama-tugas" && git commit -m "feat: …"
+  ```
 - **Push, merge, dan deploy hanya dengan izin user.**
 
 ### 9. Laporan ke user
